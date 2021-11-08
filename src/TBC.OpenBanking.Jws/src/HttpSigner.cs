@@ -34,16 +34,6 @@ namespace TBC.OpenBanking.Jws
         private readonly ILogger<HttpSigner<T>> _logger;
         protected readonly Dictionary<string, string> _headersToSign = new(StringComparer.OrdinalIgnoreCase);
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="signer">Object which is responsible to sign data through the method SignData </param>
-        /// <param name="signerCertificate">Certificate witch corresponds to <paramref name="signer"/> private key. From this certificate we need only publich key</param>
-        /// <param name="chainCertificates">Collection of certificates which represent chain (excepti root certificate)
-        /// for <paramref name="signerCertificate"/>. This parameter can be null. That means that <paramref name="signerCertificate"/> has no parent
-        /// except root certificate</param>
-        /// <param name="digestHashAlgorithmName">Name of algorithm to use in HTTP body digest calculation. If null, then algorithm is determined
-        /// from <paramref name="signer"/>.</param>
         public HttpSigner(ILogger<HttpSigner<T>> logger)
         {
             _logger = logger;

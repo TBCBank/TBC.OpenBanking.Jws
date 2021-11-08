@@ -98,15 +98,15 @@ namespace TBC.OpenBanking.Jws
             return sb.ToString();
         }
 
-        /// <summary>
-        /// Collect headers data for signing.
-        /// Headers are fetched from <paramref name="data"/>
-        /// a) by name from necessaryHeaderNames;
-        /// b) by matching prefix "psu-*"
-        /// b) special headers "(request-target)" from data.Uri and "digest" from with value <paramref name="digestValue"/>
-        /// </summary>
-        /// <param name="additionalHeaders">Values for additional (external) headers, for example, digest header</param>
-        /// <returns>Dictionary with values of headers</returns>
+        // /// <summary>
+        // /// Collect headers data for signing.
+        // /// Headers are fetched from <paramref name="data"/>
+        // /// a) by name from necessaryHeaderNames;
+        // /// b) by matching prefix "psu-*"
+        // /// b) special headers "(request-target)" from data.Uri and "digest" from with value <paramref name="digestValue"/>
+        // /// </summary>
+        // /// <param name="additionalHeaders">Values for additional (external) headers, for example, digest header</param>
+        // /// <returns>Dictionary with values of headers</returns>
         //public IDictionary<string, string> CollectHeadersData(IDictionary<string, string> additionalHeaders)
         //{
         //    var headersToSign = new Dictionary<string, string>();

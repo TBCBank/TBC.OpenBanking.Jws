@@ -91,9 +91,6 @@ namespace TBC.OpenBanking.Jws
             Init(r, r, hashName, padding);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="Parameters">RSA Parameters</param>
         public AlgorithmRsaSsa(RSAParameters Parameters, HashAlgorithmName hashName, RSASignaturePadding padding)
         {
             var r = RSA.Create();

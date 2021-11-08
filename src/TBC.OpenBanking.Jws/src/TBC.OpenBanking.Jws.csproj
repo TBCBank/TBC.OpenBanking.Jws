@@ -32,6 +32,8 @@
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(MSBuildThisFileName).xml</DocumentationFile>
+        <NoWarn>1701;1702;1591</NoWarn>
+        <WarningsAsErrors>NU1605</WarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>
