@@ -8,6 +8,9 @@
         <!-- Same sources will produce same binaries: -->
         <Deterministic>true</Deterministic>
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+        <DisableImplicitAspNetCoreAnalyzers>true</DisableImplicitAspNetCoreAnalyzers>
+        <DisableImplicitComponentsAnalyzers>true</DisableImplicitComponentsAnalyzers>
+        <EnableNETAnalyzers>false</EnableNETAnalyzers>
     </PropertyGroup>
     <!-- Include Local.Build.props file that contains settings specific to developer's machine: -->
     <Import Project="$(MSBuildThisFileDirectory)Local.Build.props" Condition="Exists('$(MSBuildThisFileDirectory)Local.Build.props')" />
