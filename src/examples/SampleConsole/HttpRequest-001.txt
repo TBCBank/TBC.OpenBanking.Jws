@@ -1,0 +1,20 @@
+POST /v1/payments/sepa-credit-transfers
+host: api.testbank.com
+X-Request-ID: 99391c7e-ad88-49ec-a2ad-99ddcb1f7721
+PSU-IP-Address: 192.168.8.78
+PSU-GEO-Location: GEO: 52.506931,13.144558
+PSU-User-Agent: Mozilla / 5.0(Windows NT 10.0; WOW64; rv: 54.0) Gecko / 20100101 Firefox / 54.0
+Date: Thu, 11 Mar 2021 02:59:41 GMT
+Content-Type: application/json
+Content-Length: 123
+
+{
+"access":
+{
+"balances": [{ "iban": "DE40100100103307118608" },{ "iban": "DE02100100109307118603","currency": "USD"},{ "iban": "DE67100100101306118605" }],
+"transactions": [{ "iban": "DE40100100103307118608" },{ "maskedPan": "123456xxxxxx1234" }]
+},
+"recurringIndicator": true,
+"validUntil": "2021-04-01",
+"frequencyPerDay": "4"
+}

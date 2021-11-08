@@ -1,0 +1,17 @@
+HTTP/1.x 201 Created
+X-Request-ID: 99391c7e-ad88-49ec-a2ad-99ddcb1f7721
+ASPSP-SCA-Approach: REDIRECT
+Date: Thu, 11 Mar 2021 19:03:28 GMT
+Location: "v1/consents/1234-wertiq-983"
+Content-Type: application/json
+Content-Length: 456
+
+{
+  "consentStatus": "received",
+  "consentId": "1234-wertiq-983"
+  "_links": {
+      "scaRedirect": {"href": "https://www.testbank.com/authentication/1234-wertiq-983"},
+      "status": {"href": "/v1/consents/1234-wertiq-983/status"},
+      "scaStatus": {"href": "v1/consents/1234-wertiq-983/authorisations/123auth567"}
+  }
+}

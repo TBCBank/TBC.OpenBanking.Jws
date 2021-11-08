@@ -1,0 +1,14 @@
+<Project>
+    <PropertyGroup>
+        <LangVersion>latest</LangVersion>
+        <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
+        <RestoreDisableParallel>true</RestoreDisableParallel>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(TF_BUILD)' == 'true' or '$(GITHUB_ACTIONS)' == 'true' ">
+        <!-- Same sources will produce same binaries: -->
+        <Deterministic>true</Deterministic>
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    </PropertyGroup>
+    <!-- Include Local.Build.props file that contains settings specific to developer's machine: -->
+    <Import Project="$(MSBuildThisFileDirectory)Local.Build.props" Condition="Exists('$(MSBuildThisFileDirectory)Local.Build.props')" />
+</Project>

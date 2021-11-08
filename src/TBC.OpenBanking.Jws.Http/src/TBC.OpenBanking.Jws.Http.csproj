@@ -1,0 +1,87 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;netcoreapp3.1;net5.0</TargetFrameworks>
+        <LangVersion>latest</LangVersion>
+        <IsPackable>true</IsPackable>
+        <PackageId>TBC.OpenBanking.Jws.Http</PackageId>
+        <Title>TBC Open Banking JWS extensions for HTTP client</Title>
+        <Description>JSON Web Signature (JWS) client-side extensions for .NET</Description>
+        <Copyright>TBC Bank</Copyright>
+        <PackageTags>jws;openapi;openbanking;signature;aspnet;aspnetcore</PackageTags>
+        <Version>1.0.0</Version>
+        <Company>TBC Bank</Company>
+        <Authors>Giorgi Chakhidze</Authors>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageIcon>icon.png</PackageIcon>
+        <RepositoryUrl>https://github.com/TBCBank/TBC.OpenBanking.Jws</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryBranch>master</RepositoryBranch>
+        <IncludeSymbols>true</IncludeSymbols>
+        <IncludeBuildOutput>true</IncludeBuildOutput>
+        <IncludeContentInPack>true</IncludeContentInPack>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <DebugType>embedded</DebugType>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(MSBuildThisFileName).xml</DocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.3">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" Condition=" '$(Configuration)' == 'Release' ">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="[5.0.0,)" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="[5.0.0,)" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="[3.1.18,)" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="[3.1.18,)" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="[5.0.0,)" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="[5.0.0,)" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\TBC.OpenBanking.Jws\src\TBC.OpenBanking.Jws.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute" Condition="$(BuildNumber) != ''">
+            <_Parameter1>BuildNumber</_Parameter1>
+            <_Parameter2>$(BuildNumber)</_Parameter2>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute" Condition="$(BuildId) != ''">
+            <_Parameter1>BuildId</_Parameter1>
+            <_Parameter2>$(BuildId)</_Parameter2>
+        </AssemblyAttribute>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\..\images\icon.png" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Remove="Internals\Range.cs" />
+        <Compile Include="Internals\Range.cs" Condition=" '$(TargetFramework)' == 'netstandard2.0' " />
+    </ItemGroup>
+
+</Project>
