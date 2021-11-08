@@ -1,5 +1,7 @@
 # TBC.OpenBanking.Jws
 
+[![NuGet version (TBC.OpenBanking.Jws)](https://img.shields.io/nuget/v/TBC.OpenBanking.Jws.svg?label=TBC.OpenBanking.Jws)](https://www.nuget.org/packages/TBC.OpenBanking.Jws/) [![NuGet version (TBC.OpenBanking.Jws.Http)](https://img.shields.io/nuget/v/TBC.OpenBanking.Jws.Http.svg?label=TBC.OpenBanking.Jws.Http)](https://www.nuget.org/packages/TBC.OpenBanking.Jws.Http/)
+
 ## JSON ვებხელმოწერა ღია ბანკინგის გარემოში
 
 საქართველოში განხორციელებულია საქართველოს კანონმდებლობასთან თავსებადი [ღია ბანკინგის](https://www.association.ge/bank-projects-detail/10/ghia-bankingi/) დანერგვა [NextGenPSD2 XS2A ჩარჩოს](http://www.association.ge/OpenBankingDocuments/NextGenPSD2%20XS2A%20Implementation%20Guide%20v0.6%202020-09-16.pdf) საფუძველზე. ტექნიკური თვალსაზრისით ღია ბანკინგი წარმოადგენს RESTful API-ს, რომელსაც აქვეყნებს ანგარიშის მომსახურე საგადახდო მომსახურების პროვაიდერი (ამსმპ), ინგლისურად Account Servicing Payment Service Provider (ASPSP) და რომლის გამოყენებაც შეუძლია მესამე მხარის პროვაიდერს (მმპ), ინგლისურად Third Party Provider (TPP).
