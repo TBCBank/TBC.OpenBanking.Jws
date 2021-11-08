@@ -37,8 +37,10 @@ namespace TBC.OpenBanking.Jws
     /// </summary>
     /// <example>
     ///     <para>File URL: <c>pfx://Password123@localhost/C:\Secrets\Certificate.pfx</c></para>
-    ///     <para>Store URL: <c>cert:///CurrentUser/My/2342342342342342342342341234</c></para>
+    ///     <para>Passwordless File URL: <c>pfx:///C:\Secrets\Certificate.pfx</c></para>
+    ///     <para>Store URL: <c>cert:///CurrentUser/My/e1d1185caf20dd16359f99cb8f99ca6b60e3c1a6</c></para>
     /// </example>
+    [TypeConverter(typeof(Converter))]
     public sealed class X509CertificateLocator : IDisposable
     {
         private static volatile uint IsRegistered;
@@ -48,11 +50,11 @@ namespace TBC.OpenBanking.Jws
         private const string PfxScheme = "pfx";
         private const string StoreScheme = "store";
 
-        private readonly Uri? _uri;
         private readonly bool _isMissing;
         private readonly bool _isPfxFile;
         private readonly bool _isCertStore;
 
+        private Uri? _uri;
         private X509Certificate2? _certificate;
 
         /// <summary>
@@ -236,10 +238,13 @@ namespace TBC.OpenBanking.Jws
             return _certificate;
         }
 
+        public override string ToString() => _isMissing ? string.Empty : _uri!.ToString();
+
         public void Dispose()
         {
             _certificate?.Dispose();
             _certificate = null;
+            _uri = null;
         }
 
         private static void Reset(X509Certificate2Collection? collection)
@@ -270,9 +275,6 @@ namespace TBC.OpenBanking.Jws
                 UriParser.Register(new PfxUriParser(), PfxScheme, -1);
                 UriParser.Register(new CertUriParser(), StoreScheme, -1);
 
-                _ = TypeDescriptor.AddAttributes(typeof(X509CertificateLocator),
-                    new TypeConverterAttribute(typeof(Converter)));
-
                 IsRegistered = 1u;
             }
         }
@@ -302,16 +304,33 @@ namespace TBC.OpenBanking.Jws
 
         private sealed class Converter : TypeConverter
         {
-            public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-            {
-                return sourceType == typeof(string);
-            }
+            public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) =>
+                sourceType == typeof(string) || sourceType == typeof(Uri);
 
-            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+            public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) =>
+                destinationType == typeof(string) || destinationType == typeof(Uri);
+
+            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) =>
+                value switch
+                {
+                    string s => Create(new Uri(s, UriKind.Absolute)),
+                    Uri u => Create(u),
+                    _ => throw new FormatException("Unable to parse X.509 certificate URL"),
+                };
+
+            public override object? ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
             {
-                return value is string s
-                    ? Create(new Uri(s, UriKind.Absolute))
-                    : throw new FormatException("Unable to parse X.509 certificate URL");
+                if (value is X509CertificateLocator c)
+                {
+                    return destinationType switch
+                    {
+                        Type st when st == typeof(string) => c.ToString(),
+                        Type ut when ut == typeof(Uri) => c._isMissing ? null : c._uri!,
+                        _ => throw new FormatException(),
+                    };
+                }
+
+                throw new FormatException($"Unable to format X.509 URL as '{destinationType?.Name ?? "<unknown>"}'");
             }
         }
     }
