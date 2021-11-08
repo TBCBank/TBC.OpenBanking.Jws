@@ -3,7 +3,7 @@ name: NuGet
 on:
   push:
     tags:
-    - '*'
+      - '*'
 
 jobs:
   build:
@@ -22,10 +22,10 @@ jobs:
     - name: Setup .NET 5 SDK
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.400
+        dotnet-version: 5.0.x
 
     - name: Restore
-      run: dotnet restore --disable-parallel
+      run: dotnet restore --disable-parallel -p:Configuration=Release
 
     - name: Build
       run: dotnet build --configuration Release --no-restore
@@ -34,7 +34,7 @@ jobs:
       run: dotnet test --no-restore --verbosity normal
 
     - name: Push Jws
-      run: dotnet nuget push "src\TBC.OpenBanking.Jws\src\bin\Release\*.nupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source "https://api.nuget.org/v3/index.json"
+      run: dotnet nuget push "src\TBC.OpenBanking.Jws\src\bin\Release\*.nupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source "https://api.nuget.org/v3/index.json" --no-symbols --skip-duplicate
 
     - name: Push Jws.Http
-      run: dotnet nuget push "src\TBC.OpenBanking.Jws.Http\src\bin\Release\*.nupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source "https://api.nuget.org/v3/index.json"
+      run: dotnet nuget push "src\TBC.OpenBanking.Jws.Http\src\bin\Release\*.nupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source "https://api.nuget.org/v3/index.json" --no-symbols --skip-duplicate
