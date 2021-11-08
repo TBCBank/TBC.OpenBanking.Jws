@@ -1,25 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Security.Authentication;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
-using TBC.OpenBanking.Jws;
-using TBC.OpenBanking.Jws.Http;
-
-namespace WebApiHttpClientExample
+﻿namespace WebApiHttpClientExample
 {
+    using System;
+    using System.Net;
+    using System.Net.Http;
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Extensions.Caching.Memory;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
+    using Microsoft.OpenApi.Models;
+    using TBC.OpenBanking.Jws;
+    using TBC.OpenBanking.Jws.Http;
+
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -41,7 +36,7 @@ namespace WebApiHttpClientExample
             // Read JWS options from appsettings.json
             //
             services.AddOptions<JwsClientOptions>()
-                .Bind(this.Configuration.GetSection("Jws:Options"));
+                .BindConfiguration("Jws:Options");
 
             services.AddControllers();
 
@@ -50,6 +45,9 @@ namespace WebApiHttpClientExample
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApiHttpClientExample", Version = "v1" });
             });
 
+            //
+            // Memory cache is required by JwsMessageHandler
+            //
             services.AddMemoryCache();
 
             //
@@ -62,14 +60,9 @@ namespace WebApiHttpClientExample
             {
                 var handler = new HttpClientHandler
                 {
-                    AllowAutoRedirect = true,
                     AutomaticDecompression = DecompressionMethods.All,
-                    CheckCertificateRevocationList = true,
                     MaxConnectionsPerServer = 4,
-                    PreAuthenticate = true,
-                    SslProtocols = SslProtocols.None,  // OS will choose
                     UseCookies = false,
-                    UseDefaultCredentials = false,
                     UseProxy = false,
                 };
 
@@ -93,9 +86,9 @@ namespace WebApiHttpClientExample
                 var options = svcs.GetRequiredService<IOptions<JwsClientOptions>>();
 
                 var loggerFactory = svcs.GetRequiredService<ILoggerFactory>();
-                var cache = svcs.GetRequiredService<IMemoryCache>();
+                var memoryCache = svcs.GetRequiredService<IMemoryCache>();
 
-                return new JwsMessageHandler(options, loggerFactory, cache);
+                return new JwsMessageHandler(options, loggerFactory, memoryCache);
             });
         }
 

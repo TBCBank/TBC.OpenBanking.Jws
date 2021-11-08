@@ -18,9 +18,11 @@ static class Program
         {
             Console.WriteLine("Please specify certificate location");
 
-            Console.WriteLine("\nSamples for certificate location strings");
+            Console.WriteLine("\nExamples of certificate location URLs");
             Console.WriteLine("cert:///CurrentUser/My/C594DAD7CBCBD6CC9704F4F463EABE68980F640F");
             Console.WriteLine("pfx://PASSWORD@local/C:\\Secrets\\Jws.pfx");
+            // Passwordless PFX file:
+            Console.WriteLine("pfx:///C:\\Secrets\\Jws.pfx");
 
             await Task.FromResult(1);
         }
@@ -43,8 +45,8 @@ static class Program
                         // which does not sign responses with JWS; it just returns what we've sent:
                         //
                         options.CheckCertificateRevocationList = false;
-                            options.CheckSignatureTimeConstraint = false;
-                            options.ValidateSignature = false;
+                        options.CheckSignatureTimeConstraint = false;
+                        options.ValidateSignature = false;
 
                         Uri certUrl = new(certLocation);
                         options.SigningCertificate = new X509CertificateLocator(certUrl);
@@ -52,11 +54,11 @@ static class Program
 
                     services.AddHttpClient(name: "ExampleClient", configureClient: (client) =>
                     {
-                    //
-                    // httpbin.org is a free service used to test HTTP request/responses;
-                    // It simply reflects the request you've sent back to you:
-                    //
-                    client.BaseAddress = new("https://httpbin.org/");
+                        //
+                        // httpbin.org is a free service used to test HTTP request/responses;
+                        // It simply reflects the request you've sent back to you:
+                        //
+                        client.BaseAddress = new("https://httpbin.org/");
                     })
                     .AddHttpMessageHandler(services =>
                     {
