@@ -2,8 +2,18 @@ name: "CodeQL"
 
 on:
   push:
+    paths-ignore:
+      - 'images/**'
+      - 'src/images/**'
+      - 'src/examples/**'
+      - 'README.md'
     branches: [ master ]
   pull_request:
+    paths-ignore:
+      - 'images/**'
+      - 'src/images/**'
+      - 'src/examples/**'
+      - 'README.md'
     # The branches below must be a subset of the branches above
     branches: [ master ]
   schedule:

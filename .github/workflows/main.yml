@@ -2,13 +2,21 @@ name: CI
 
 on:
   push:
+    paths-ignore:
+      - 'images/**'
+      - 'src/images/**'
+      - 'README.md'
     branches: [ master ]
   pull_request:
+    paths-ignore:
+      - 'images/**'
+      - 'src/images/**'
+      - 'README.md'
     branches: [ master ]
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     env:
       DOTNET_NOLOGO: 1
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
@@ -29,7 +37,7 @@ jobs:
       run: dotnet restore --disable-parallel -p:Configuration=Release
 
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build -c Release --no-restore
 
     - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet test -c Release --no-restore --no-build --verbosity normal

@@ -2,8 +2,13 @@ name: NuGet
 
 on:
   push:
+    paths-ignore:
+      - 'images/**'
+      - 'src/images/**'
+      - 'src/examples/**'
+      - 'README.md'
     tags:
-      - '*'
+      - '**'
 
 jobs:
   build:
@@ -17,12 +22,13 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
       with:
-        fetch-depth: 1
+        fetch-depth: 10
 
     - name: Setup .NET 5 SDK
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
+        include-prerelease: false
 
     # Use vanilla NuGet.exe because dotnet nuget command has a bug: it ignores --source parameter
     - name: Setup NuGet.exe
@@ -36,13 +42,13 @@ jobs:
       run: dotnet restore --disable-parallel -p:Configuration=Release
 
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build -c Release --no-restore
 
     - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet test -c Release --no-restore --no-build --verbosity normal
 
     - name: Push Jws
-      run: nuget push "src\TBC.OpenBanking.Jws\src\bin\Release\*.nupkg" -NonInteractive -NoSymbols -SkipDuplicate -Source "https://api.nuget.org/v3/index.json"
+      run: nuget push "src\TBC.OpenBanking.Jws\src\bin\Release\*.nupkg" -NonInteractive -SkipDuplicate -Source "https://api.nuget.org/v3/index.json"
 
     - name: Push Jws.Http
-      run: nuget push "src\TBC.OpenBanking.Jws.Http\src\bin\Release\*.nupkg" -NonInteractive -NoSymbols -SkipDuplicate -Source "https://api.nuget.org/v3/index.json"
+      run: nuget push "src\TBC.OpenBanking.Jws.Http\src\bin\Release\*.nupkg" -NonInteractive -SkipDuplicate -Source "https://api.nuget.org/v3/index.json"
