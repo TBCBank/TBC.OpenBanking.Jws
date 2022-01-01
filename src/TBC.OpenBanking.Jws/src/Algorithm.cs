@@ -20,76 +20,75 @@
  * SOFTWARE.
  */
 
-namespace TBC.OpenBanking.Jws
+namespace TBC.OpenBanking.Jws;
+
+using System;
+using System.Collections.Generic;
+using System.Security.Cryptography;
+
+public abstract class Algorithm : IDisposable, ISigner
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Security.Cryptography;
+    /// <summary>
+    /// Short name for algorithm. Corresponds to JWS &quot;alg&quot; header parameter.
+    /// </summary>
+    public abstract string Name { get; }
 
-    public abstract class Algorithm : IDisposable, ISigner
+    /// <summary>
+    /// Cryptographic hash algorithm name.
+    /// </summary>
+    public abstract HashAlgorithmName HashAlgorithmName { get; }
+
+    /// <summary>
+    /// Signs data.
+    /// </summary>
+    /// <param name="headers">Properties to include in the header.</param>
+    /// <param name="payload">Properties to include in the payload.</param>
+    /// <param name="encodedHeader">Resulting encoded header string.</param>
+    /// <param name="encodedPayload">Resulting encoded payload string.</param>
+    /// <param name="encodedSignature">Generated signature encoded as Base64Url string.</param>
+    public virtual void Sign(IDictionary<string, object> headers, IDictionary<string, object> payload,
+        out string encodedHeader, out string encodedPayload, out string encodedSignature)
     {
-        /// <summary>
-        /// Short name for algorithm. Corresponds to JWS &quot;alg&quot; header parameter.
-        /// </summary>
-        public abstract string Name { get; }
+        var headerJson = Helper.SerializeToJson(headers);
+        encodedHeader = UTF8EncodingSealed.Instance.GetBytes(headerJson).EncodeBase64Url();
 
-        /// <summary>
-        /// Cryptographic hash algorithm name.
-        /// </summary>
-        public abstract HashAlgorithmName HashAlgorithmName { get; }
+        string PayloadJson = payload is null ? string.Empty : Helper.SerializeToJson(payload);
+        encodedPayload = UTF8EncodingSealed.Instance.GetBytes(PayloadJson).EncodeBase64Url();
 
-        /// <summary>
-        /// Signs data.
-        /// </summary>
-        /// <param name="headers">Properties to include in the header.</param>
-        /// <param name="payload">Properties to include in the payload.</param>
-        /// <param name="encodedHeader">Resulting encoded header string.</param>
-        /// <param name="encodedPayload">Resulting encoded payload string.</param>
-        /// <param name="encodedSignature">Generated signature encoded as Base64Url string.</param>
-        public virtual void Sign(IDictionary<string, object> headers, IDictionary<string, object> payload,
-            out string encodedHeader, out string encodedPayload, out string encodedSignature)
-        {
-            var headerJson = Helper.SerializeToJson(headers);
-            encodedHeader = UTF8EncodingSealed.Instance.GetBytes(headerJson).EncodeBase64Url();
-
-            string PayloadJson = payload is null ? string.Empty : Helper.SerializeToJson(payload);
-            encodedPayload = UTF8EncodingSealed.Instance.GetBytes(PayloadJson).EncodeBase64Url();
-
-            encodedSignature = this.Sign(encodedHeader, encodedPayload);
-        }
-
-        /// <summary>
-        /// Signs data.
-        /// </summary>
-        /// <param name="headerEncoded">Encoded properties to include in the header.</param>
-        /// <param name="payloadEncoded">Encoded properties to include in the payload.</param>
-        /// <returns>Signature encoded as Base64Url string</returns>
-        public abstract string Sign(string headerEncoded, string payloadEncoded);
-
-        /// <summary>
-        /// Checks if a signature is valid.
-        /// </summary>
-        /// <param name="headerEncoded">Encoded properties to include in the header.</param>
-        /// <param name="payloadEncoded">Encoded properties to include in the payload.</param>
-        /// <param name="signatureEncoded">Encoded signature.</param>
-        /// <returns>If the signature is valid.</returns>
-        public abstract bool VerifySignature(string headerEncoded, string payloadEncoded, string signatureEncoded);
-
-        /// <inheritdoc />
-        public abstract void Dispose();
-
-        /// <summary>
-        /// Returns JSON Web Key contained in a dictionary.
-        /// </summary>
-        /// <param name="includePrivate">If private parameters are to be included.</param>
-        /// <returns>JWK for current object.</returns>
-        public abstract IDictionary<string, string> GetJwk(bool includePrivate);
-
-        /// <summary>
-        /// Signs data.
-        /// </summary>
-        /// <param name="data">Data to be signed.</param>
-        /// <returns>Signature</returns>
-        public abstract byte[] SignData(byte[] data);
+        encodedSignature = this.Sign(encodedHeader, encodedPayload);
     }
+
+    /// <summary>
+    /// Signs data.
+    /// </summary>
+    /// <param name="headerEncoded">Encoded properties to include in the header.</param>
+    /// <param name="payloadEncoded">Encoded properties to include in the payload.</param>
+    /// <returns>Signature encoded as Base64Url string</returns>
+    public abstract string Sign(string headerEncoded, string payloadEncoded);
+
+    /// <summary>
+    /// Checks if a signature is valid.
+    /// </summary>
+    /// <param name="headerEncoded">Encoded properties to include in the header.</param>
+    /// <param name="payloadEncoded">Encoded properties to include in the payload.</param>
+    /// <param name="signatureEncoded">Encoded signature.</param>
+    /// <returns>If the signature is valid.</returns>
+    public abstract bool VerifySignature(string headerEncoded, string payloadEncoded, string signatureEncoded);
+
+    /// <inheritdoc />
+    public abstract void Dispose();
+
+    /// <summary>
+    /// Returns JSON Web Key contained in a dictionary.
+    /// </summary>
+    /// <param name="includePrivate">If private parameters are to be included.</param>
+    /// <returns>JWK for current object.</returns>
+    public abstract IDictionary<string, string> GetJwk(bool includePrivate);
+
+    /// <summary>
+    /// Signs data.
+    /// </summary>
+    /// <param name="data">Data to be signed.</param>
+    /// <returns>Signature</returns>
+    public abstract byte[] SignData(byte[] data);
 }

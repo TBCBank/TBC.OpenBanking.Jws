@@ -20,133 +20,132 @@
  * SOFTWARE.
  */
 
-namespace TBC.OpenBanking.Jws
+namespace TBC.OpenBanking.Jws;
+
+using System;
+using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using Microsoft.Extensions.Logging;
+
+public class HttpSigner<T> where T : HttpMessageData
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Security.Cryptography;
-    using System.Security.Cryptography.X509Certificates;
-    using System.Text;
-    using Microsoft.Extensions.Logging;
+    private readonly ILogger<HttpSigner<T>> _logger;
+    protected readonly Dictionary<string, string> _headersToSign = new(StringComparer.OrdinalIgnoreCase);
 
-    public class HttpSigner<T> where T : HttpMessageData
+    public HttpSigner(ILogger<HttpSigner<T>> logger)
     {
-        private readonly ILogger<HttpSigner<T>> _logger;
-        protected readonly Dictionary<string, string> _headersToSign = new(StringComparer.OrdinalIgnoreCase);
+        _logger = logger;
+        DigestHashAlgorithmName = null;
 
-        public HttpSigner(ILogger<HttpSigner<T>> logger)
+        Reset();
+    }
+
+    private void Reset()
+    {
+        ProtectedHeader = null;
+        IsSignatureCreated = false;
+        SignatureHeaderValue = null;
+        DigestHeaderValue = null;
+    }
+
+    public ISigner Signer { get; set; }
+
+    public X509Certificate2 SignerCertificate { get; set; }
+
+    public X509Certificate2Collection SignerCertificateChain { get; set; }
+
+    public HashAlgorithmName? DigestHashAlgorithmName { get; set; }
+
+    public ProtectedHeader ProtectedHeader { get; private set; }
+
+    /// <summary>
+    /// True if the last call to CreateSignature finished well
+    /// </summary>
+    public bool IsSignatureCreated { get; private set; }
+
+    /// <summary>
+    /// Signature header value
+    /// </summary>
+    public string SignatureHeaderValue { get; private set; }
+
+    /// <summary>
+    /// Request body digest calculated during last call of CreateSignature
+    /// </summary>
+    public string DigestHeaderValue { get; private set; }
+
+    /// <summary>
+    /// Sign data from <paramref name="httpData"/> using crypto stuff from object constracting.
+    /// As a result SignatureHeaderValue and DigestHeaderValue are calculated
+    /// You can call this method several times. Each time new signature and values will be created
+    /// </summary>
+    /// <param name="httpData">Request data</param>
+    /// <returns>true if signature created without a problem</returns>
+    public bool CreateSignature(T httpData)
+    {
+        if (_logger != null && _logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug($"Call {nameof(CreateSignature)}");
+
+        if (httpData == null) throw new ArgumentNullException(nameof(httpData));
+        if (Signer == null) throw new InvalidOperationException($"Property not set '{nameof(Sign)}'");
+        if (SignerCertificate == null) throw new InvalidOperationException($"Property not set '{nameof(SignerCertificate)}'");
+        if (SignerCertificateChain == null) throw new InvalidOperationException($"Property not set '{nameof(SignerCertificateChain)}'");
+
+        Reset();
+
+        // Calculate body digest
+        var digest = new HttpDigest(DigestHashAlgorithmName ?? Signer.HashAlgorithmName);
+        var digestValue = digest.CalculateDigest(httpData.Body);
+
+        var additionalHeaderValues = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            _logger = logger;
-            DigestHashAlgorithmName = null;
+            [JwsConstants.DigestHeadertName] = digestValue,
+        };
 
-            Reset();
+        var headersList = httpData.GetHeaderNamesForSignature();
+
+        var protHeader = ComposeProtectedHeader(headersList);
+        var jsonProtectedHeader = Helper.SerializeToJson(protHeader);
+        var encodedProtHeader = UTF8EncodingSealed.Instance.GetBytes(jsonProtectedHeader).EncodeBase64Url();
+
+        var payload = httpData.ComposeHeadersForSignature(protHeader.DataToBeSigned.Parameters, additionalHeaderValues);
+
+        if (_logger != null && _logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Payload: {Payload}", payload);
+
+        var encodedSignature = Sign(encodedProtHeader, payload);
+
+        // Populate properties
+        ProtectedHeader = protHeader;
+        DigestHeaderValue = digestValue;
+        SignatureHeaderValue = $"{encodedProtHeader}{JwsConstants.SignatureSeparator}{encodedSignature}";
+
+        IsSignatureCreated = true;
+
+        return IsSignatureCreated;
+    }
+
+    private string Sign(string encodedProtHeader, string payload)
+    {
+        byte[] data = Encoding.ASCII.GetBytes(encodedProtHeader + "." + payload);
+        byte[] signature = Signer.SignData(data);
+
+        return signature.EncodeBase64Url();
+    }
+
+    private ProtectedHeader ComposeProtectedHeader(List<string> headerNames)
+    {
+        ProtectedHeader protectedHeader = new();
+
+        foreach (var hn in headerNames)
+        {
+            protectedHeader.DataToBeSigned.AddParameter(hn);
         }
 
-        private void Reset()
-        {
-            ProtectedHeader = null;
-            IsSignatureCreated = false;
-            SignatureHeaderValue = null;
-            DigestHeaderValue = null;
-        }
+        protectedHeader.AlgorithmName = Signer.Name;
+        protectedHeader.SetEncodedCertificates(SignerCertificate, SignerCertificateChain);
 
-        public ISigner Signer { get; set; }
-
-        public X509Certificate2 SignerCertificate { get; set; }
-
-        public X509Certificate2Collection SignerCertificateChain { get; set; }
-
-        public HashAlgorithmName? DigestHashAlgorithmName { get; set; }
-
-        public ProtectedHeader ProtectedHeader { get; private set; }
-
-        /// <summary>
-        /// True if the last call to CreateSignature finished well
-        /// </summary>
-        public bool IsSignatureCreated { get; private set; }
-
-        /// <summary>
-        /// Signature header value
-        /// </summary>
-        public string SignatureHeaderValue { get; private set; }
-
-        /// <summary>
-        /// Request body digest calculated during last call of CreateSignature
-        /// </summary>
-        public string DigestHeaderValue { get; private set; }
-
-        /// <summary>
-        /// Sign data from <paramref name="httpData"/> using crypto stuff from object constracting.
-        /// As a result SignatureHeaderValue and DigestHeaderValue are calculated
-        /// You can call this method several times. Each time new signature and values will be created
-        /// </summary>
-        /// <param name="httpData">Request data</param>
-        /// <returns>true if signature created without a problem</returns>
-        public bool CreateSignature(T httpData)
-        {
-            if (_logger != null && _logger.IsEnabled(LogLevel.Debug))
-                _logger.LogDebug($"Call {nameof(CreateSignature)}");
-
-            if (httpData == null) throw new ArgumentNullException(nameof(httpData));
-            if (Signer == null) throw new InvalidOperationException($"Property not set '{nameof(Sign)}'");
-            if (SignerCertificate == null) throw new InvalidOperationException($"Property not set '{nameof(SignerCertificate)}'");
-            if (SignerCertificateChain == null) throw new InvalidOperationException($"Property not set '{nameof(SignerCertificateChain)}'");
-
-            Reset();
-
-            // Calculate body digest
-            var digest = new HttpDigest(DigestHashAlgorithmName ?? Signer.HashAlgorithmName);
-            var digestValue = digest.CalculateDigest(httpData.Body);
-
-            var additionalHeaderValues = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                [JwsConstants.DigestHeadertName] = digestValue,
-            };
-
-            var headersList = httpData.GetHeaderNamesForSignature();
-
-            var protHeader = ComposeProtectedHeader(headersList);
-            var jsonProtectedHeader = Helper.SerializeToJson(protHeader);
-            var encodedProtHeader = UTF8EncodingSealed.Instance.GetBytes(jsonProtectedHeader).EncodeBase64Url();
-
-            var payload = httpData.ComposeHeadersForSignature(protHeader.DataToBeSigned.Parameters, additionalHeaderValues);
-
-            if (_logger != null && _logger.IsEnabled(LogLevel.Debug))
-                _logger.LogDebug($"Payload: {payload}");
-
-            var encodedSignature = Sign(encodedProtHeader, payload);
-
-            // Populate properties
-            ProtectedHeader = protHeader;
-            DigestHeaderValue = digestValue;
-            SignatureHeaderValue = $"{encodedProtHeader}{JwsConstants.SignatureSeparator}{encodedSignature}";
-
-            IsSignatureCreated = true;
-
-            return IsSignatureCreated;
-        }
-
-        private string Sign(string encodedProtHeader, string payload)
-        {
-            byte[] data = Encoding.ASCII.GetBytes(encodedProtHeader + "." + payload);
-            byte[] signature = Signer.SignData(data);
-
-            return signature.EncodeBase64Url();
-        }
-
-        private ProtectedHeader ComposeProtectedHeader(List<string> headerNames)
-        {
-            ProtectedHeader protectedHeader = new();
-
-            foreach (var hn in headerNames)
-            {
-                protectedHeader.DataToBeSigned.AddParameter(hn);
-            }
-
-            protectedHeader.AlgorithmName = Signer.Name;
-            protectedHeader.SetEncodedCertificates(SignerCertificate, SignerCertificateChain);
-
-            return protectedHeader;
-        }
+        return protectedHeader;
     }
 }

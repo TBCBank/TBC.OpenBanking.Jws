@@ -20,28 +20,25 @@
  * SOFTWARE.
  */
 
-namespace TBC.OpenBanking.Jws
+namespace TBC.OpenBanking.Jws;
+
+using System.Security.Cryptography.X509Certificates;
+
+public class CertificateValidationFlags
 {
-    using System.Security.Cryptography.X509Certificates;
-
-    public class CertificateValidationFlags
+    public CertificateValidationFlags()
     {
-        public CertificateValidationFlags()
-        {
-            Reset();
-        }
+        Reset();
+    }
 
-        public X509RevocationMode RevocationMode { get; set; }
+    public X509RevocationMode RevocationMode { get; set; }
+    public X509RevocationFlag RevocationFlag { get; set; }
+    public X509VerificationFlags VerificationFlags { get; set; }
 
-        public X509RevocationFlag RevocationFlag { get; set; }
-
-        public X509VerificationFlags VerificationFlags { get; set; }
-
-        public void Reset()
-        {
-            RevocationMode = X509RevocationMode.Online;
-            RevocationFlag = X509RevocationFlag.ExcludeRoot;
-            VerificationFlags = X509VerificationFlags.NoFlag;
-        }
+    public void Reset()
+    {
+        RevocationMode = X509RevocationMode.Online;
+        RevocationFlag = X509RevocationFlag.ExcludeRoot;
+        VerificationFlags = X509VerificationFlags.NoFlag;
     }
 }

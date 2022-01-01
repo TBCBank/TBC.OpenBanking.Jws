@@ -20,37 +20,36 @@
  * SOFTWARE.
  */
 
-namespace TBC.OpenBanking.Jws.Exceptions
+namespace TBC.OpenBanking.Jws.Exceptions;
+
+using System;
+using System.Runtime.Serialization;
+
+[Serializable]
+public class SignatureVerificationProblemException : JwsException
 {
-    using System;
-    using System.Runtime.Serialization;
+    private const int ErrorCode = 100;
 
-    [Serializable]
-    public class SignatureVerificationProblemException : JwsException
+    public SignatureVerificationProblemException()
     {
-        private const int ErrorCode = 100;
+        this.SetHResult(ErrorCode);
+    }
 
-        public SignatureVerificationProblemException()
-        {
-            this.SetHResult(ErrorCode);
-        }
+    public SignatureVerificationProblemException(string message)
+        : base(message)
+    {
+        this.SetHResult(ErrorCode);
+    }
 
-        public SignatureVerificationProblemException(string message)
-            : base(message)
-        {
-            this.SetHResult(ErrorCode);
-        }
+    public SignatureVerificationProblemException(string message, Exception innerException)
+        : base(message, innerException)
+    {
+        this.SetHResult(ErrorCode);
+    }
 
-        public SignatureVerificationProblemException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-            this.SetHResult(ErrorCode);
-        }
-
-        protected SignatureVerificationProblemException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            this.SetHResult(ErrorCode);
-        }
+    protected SignatureVerificationProblemException(SerializationInfo info, StreamingContext context)
+        : base(info, context)
+    {
+        this.SetHResult(ErrorCode);
     }
 }

@@ -20,156 +20,155 @@
  * SOFTWARE.
  */
 
-namespace TBC.OpenBanking.Jws
+namespace TBC.OpenBanking.Jws;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http.Headers;
+using System.Text;
+
+/// <summary>
+/// Container for incoming or outgoing HTTP data.
+/// </summary>
+public abstract class HttpMessageData
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Net.Http.Headers;
-    using System.Text;
+    protected readonly Dictionary<string, string> headers = new(StringComparer.OrdinalIgnoreCase);
+
+    public enum HeaderNecessity
+    {
+        Mandatory,
+        IfExists,
+    }
 
     /// <summary>
-    /// Container for incoming or outgoing HTTP data.
+    /// <see href="https://tools.ietf.org/html/draft-cavage-http-signatures-10#section-2.3"/>
+    ///
+    /// 2.  Create the header field string by concatenating the lowercased
+    /// header field name followed with an ASCII colon `:`, an ASCII
+    /// space ` `, and the header field value.Leading and trailing
+    /// optional whitespace(OWS) in the header field value MUST be
+    /// omitted(as specified in RFC7230[RFC7230], Section 3.2.4 [8]).
+    /// If there are multiple instances of the same header field, all
+    /// header field values associated with the header field MUST be
+    /// concatenated, separated by a ASCII comma and an ASCII space `, `,
+    /// and used in the order in which they will appear in the
+    /// transmitted HTTP message.Any other modification to the header
+    /// field value MUST NOT be made.
     /// </summary>
-    public abstract class HttpMessageData
+    internal const string HeaderNameValueSeparator = ": ";
+
+    /// <summary>
+    /// <see href="https://tools.ietf.org/html/draft-cavage-http-signatures-10#section-2.3"/>
+    ///
+    /// 3.  If value is not the last value then append an ASCII newline `\n`.
+    /// </summary>
+    internal const char HeaderTerminatorInPayload = '\n';
+
+    public const string DigestHeadertName = "digest";
+    public const string SignatureHeaderName = "x-jws-signature";
+
+    internal const string PsuPrefix = "psu-";
+
+    internal const string SignatureSeparator = "..";
+    internal readonly static string[] SignatureSplitter = { SignatureSeparator };
+
+    internal readonly static byte[] EmptyBody = Array.Empty<byte>();
+
+    /// <summary>
+    /// Gets or sets the HTTP body.
+    /// </summary>
+    public byte[] Body { get; set; } = EmptyBody;
+
+    /// <summary>
+    /// Gets collection of HTTP headers.
+    /// </summary>
+    public IDictionary<string, string> Headers
     {
-        protected readonly Dictionary<string, string> headers = new(StringComparer.OrdinalIgnoreCase);
-
-        public enum HeaderNecessity
-        {
-            Mandatory,
-            IfExists,
-        }
-
-        /// <summary>
-        /// <see href="https://tools.ietf.org/html/draft-cavage-http-signatures-10#section-2.3"/>
-        ///
-        /// 2.  Create the header field string by concatenating the lowercased
-        /// header field name followed with an ASCII colon `:`, an ASCII
-        /// space ` `, and the header field value.Leading and trailing
-        /// optional whitespace(OWS) in the header field value MUST be
-        /// omitted(as specified in RFC7230[RFC7230], Section 3.2.4 [8]).
-        /// If there are multiple instances of the same header field, all
-        /// header field values associated with the header field MUST be
-        /// concatenated, separated by a ASCII comma and an ASCII space `, `,
-        /// and used in the order in which they will appear in the
-        /// transmitted HTTP message.Any other modification to the header
-        /// field value MUST NOT be made.
-        /// </summary>
-        internal const string HeaderNameValueSeparator = ": ";
-
-        /// <summary>
-        /// <see href="https://tools.ietf.org/html/draft-cavage-http-signatures-10#section-2.3"/>
-        ///
-        /// 3.  If value is not the last value then append an ASCII newline `\n`.
-        /// </summary>
-        internal const char HeaderTerminatorInPayload = '\n';
-
-        public const string DigestHeadertName = "digest";
-        public const string SignatureHeaderName = "x-jws-signature";
-
-        internal const string PsuPrefix = "psu-";
-
-        internal const string SignatureSeparator = "..";
-        internal readonly static string[] SignatureSplitter = { SignatureSeparator };
-
-        internal readonly static byte[] EmptyBody = Array.Empty<byte>();
-
-        /// <summary>
-        /// Gets or sets the HTTP body.
-        /// </summary>
-        public byte[] Body { get; set; } = EmptyBody;
-
-        /// <summary>
-        /// Gets collection of HTTP headers.
-        /// </summary>
-        public IDictionary<string, string> Headers
-        {
-            get => headers;
-        }
-
-        public void AddHeader(string name, string value)
-        {
-            if (name == null) throw new ArgumentNullException(nameof(name));
-            if (value == null) throw new ArgumentNullException(nameof(value));
-
-            if (!Headers.ContainsKey(name))
-            {
-                Headers.Add(name, value);
-            }
-        }
-
-        /// <summary>
-        /// A utility method that appends <paramref name="httpHeaders"/> to the <see cref="Headers"/>
-        /// </summary>
-        /// <param name="httpHeaders">A collection of HTTP request headers</param>
-        /// <param name="acceptMultivalue">If true, then multivalue headers are accepted and values will be concatenated to one string.
-        /// If false, then multivalue headers are not acceptable and correspondent exeption will be thrown</param>
-        public void AppendHeaders(HttpHeaders httpHeaders, bool acceptMultivalue = false)
-        {
-            if (httpHeaders == null) throw new ArgumentNullException(nameof(httpHeaders));
-
-            var sb = new StringBuilder();
-            foreach (var header in httpHeaders)
-            {
-                string headerValue;
-                if (!Headers.ContainsKey(header.Key))
-                {
-                    if (header.Value.Skip(1).Any())
-                    {
-                        if (!acceptMultivalue)
-                            throw new ArgumentOutOfRangeException(nameof(httpHeaders), $"Header header.Key contains multivalue");
-
-                        sb.Clear();
-                        foreach (var value in header.Value)
-                        {
-                            if (sb.Length != 0)
-                                sb.Append(", ");
-                            sb.Append(value);
-                        }
-
-                        headerValue = sb.ToString();
-                    }
-                    else
-                        headerValue = header.Value.First();
-
-                    Headers.Add(header.Key, headerValue);
-                }
-            }
-        }
-
-        /// <remarks>
-        /// <see href="https://tools.ietf.org/html/draft-cavage-http-signatures-10#section-2.3"/>
-        ///
-        /// 1.  If the header field name is `(request-target)` then generate the
-        /// header field value by concatenating the lowercased :method, an
-        /// ASCII space, and the :path pseudo-headers(as specified in
-        /// HTTP/2, Section 8.1.2.3 [7]).  Note: For the avoidance of doubt,
-        /// lowercasing only applies to the :method pseudo-header and not to
-        /// the :path pseudo-header.
-        ///
-        /// 2.  Create the header field string by concatenating the lowercased
-        /// header field name followed with an ASCII colon `:`, an ASCII
-        /// space ` `, and the header field value.Leading and trailing
-        /// optional whitespace(OWS) in the header field value MUST be
-        /// omitted(as specified in RFC7230[RFC7230], Section 3.2.4 [8]).
-        /// If there are multiple instances of the same header field, all
-        /// header field values associated with the header field MUST be
-        /// concatenated, separated by a ASCII comma and an ASCII space `, `,
-        /// and used in the order in which they will appear in the
-        /// transmitted HTTP message.Any other modification to the header
-        /// field value MUST NOT be made.
-        ///
-        /// 3.  If value is not the last value then append an ASCII newline `\n`.
-        /// </remarks>
-        public abstract string ComposeHeadersForSignature(IList<string> headers, IDictionary<string, string> additionalHeaders = null);
-
-        /// <summary>
-        /// If there are any mandatory/necessary headers, then it will check if all of them are present in Headers collection or not.
-        /// On failure throws exception <see cref="Exceptions.HeaderMissingException"/>.
-        /// </summary>
-        public abstract void CheckMandatoryHeaders();
-
-        public abstract List<string> GetHeaderNamesForSignature();
+        get => headers;
     }
+
+    public void AddHeader(string name, string value)
+    {
+        if (name == null) throw new ArgumentNullException(nameof(name));
+        if (value == null) throw new ArgumentNullException(nameof(value));
+
+        if (!Headers.ContainsKey(name))
+        {
+            Headers.Add(name, value);
+        }
+    }
+
+    /// <summary>
+    /// A utility method that appends <paramref name="httpHeaders"/> to the <see cref="Headers"/>
+    /// </summary>
+    /// <param name="httpHeaders">A collection of HTTP request headers</param>
+    /// <param name="acceptMultivalue">If true, then multivalue headers are accepted and values will be concatenated to one string.
+    /// If false, then multivalue headers are not acceptable and correspondent exeption will be thrown</param>
+    public void AppendHeaders(HttpHeaders httpHeaders, bool acceptMultivalue = false)
+    {
+        if (httpHeaders == null) throw new ArgumentNullException(nameof(httpHeaders));
+
+        var sb = new StringBuilder();
+        foreach (var header in httpHeaders)
+        {
+            string headerValue;
+            if (!Headers.ContainsKey(header.Key))
+            {
+                if (header.Value.Skip(1).Any())
+                {
+                    if (!acceptMultivalue)
+                        throw new ArgumentOutOfRangeException(nameof(httpHeaders), $"Header {header.Key} contains multiple values");
+
+                    sb.Clear();
+                    foreach (var value in header.Value)
+                    {
+                        if (sb.Length != 0)
+                            sb.Append(", ");
+                        sb.Append(value);
+                    }
+
+                    headerValue = sb.ToString();
+                }
+                else
+                    headerValue = header.Value.First();
+
+                Headers.Add(header.Key, headerValue);
+            }
+        }
+    }
+
+    /// <remarks>
+    /// <see href="https://tools.ietf.org/html/draft-cavage-http-signatures-10#section-2.3"/>
+    ///
+    /// 1.  If the header field name is `(request-target)` then generate the
+    /// header field value by concatenating the lowercased :method, an
+    /// ASCII space, and the :path pseudo-headers(as specified in
+    /// HTTP/2, Section 8.1.2.3 [7]).  Note: For the avoidance of doubt,
+    /// lowercasing only applies to the :method pseudo-header and not to
+    /// the :path pseudo-header.
+    ///
+    /// 2.  Create the header field string by concatenating the lowercased
+    /// header field name followed with an ASCII colon `:`, an ASCII
+    /// space ` `, and the header field value.Leading and trailing
+    /// optional whitespace(OWS) in the header field value MUST be
+    /// omitted(as specified in RFC7230[RFC7230], Section 3.2.4 [8]).
+    /// If there are multiple instances of the same header field, all
+    /// header field values associated with the header field MUST be
+    /// concatenated, separated by a ASCII comma and an ASCII space `, `,
+    /// and used in the order in which they will appear in the
+    /// transmitted HTTP message.Any other modification to the header
+    /// field value MUST NOT be made.
+    ///
+    /// 3.  If value is not the last value then append an ASCII newline `\n`.
+    /// </remarks>
+    public abstract string ComposeHeadersForSignature(IList<string> headers, IDictionary<string, string> additionalHeaders = null);
+
+    /// <summary>
+    /// If there are any mandatory/necessary headers, then it will check if all of them are present in Headers collection or not.
+    /// On failure throws exception <see cref="Exceptions.HeaderMissingException"/>.
+    /// </summary>
+    public abstract void CheckMandatoryHeaders();
+
+    public abstract List<string> GetHeaderNamesForSignature();
 }

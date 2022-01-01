@@ -20,30 +20,29 @@
  * SOFTWARE.
  */
 
-namespace TBC.OpenBanking.Jws.Exceptions
+namespace TBC.OpenBanking.Jws.Exceptions;
+
+using System;
+using System.Runtime.Serialization;
+
+[Serializable]
+public abstract class JwsException : Exception
 {
-    using System;
-    using System.Runtime.Serialization;
+    public JwsException() { }
+    public JwsException(string message) : base(message) { }
+    public JwsException(string message, Exception inner) : base(message, inner) { }
+    protected JwsException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
-    [Serializable]
-    public abstract class JwsException : Exception
-    {
-        public JwsException() { }
-        public JwsException(string message) : base(message) { }
-        public JwsException(string message, Exception inner) : base(message, inner) { }
-        protected JwsException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+    protected const int SEVERITY_SUCCESS = 0;
+    protected const int SEVERITY_ERROR = 1;
 
-        protected const int SEVERITY_SUCCESS = 0;
-        protected const int SEVERITY_ERROR = 1;
+    // Facility for customer-defined HRESULTs
+    protected const int FACILITY_ITF = 4;
 
-        // Facility for customer-defined HRESULTs
-        protected const int FACILITY_ITF = 4;
+    // Taken from winerror.h
+    protected static int MakeHResult(int sev, int fac, int code) =>
+        (int)(((uint)sev << 31) | ((uint)fac << 16) | ((uint)code));
 
-        // Taken from winerror.h
-        protected static int MakeHResult(int sev, int fac, int code) =>
-            (int)(((uint)sev << 31) | ((uint)fac << 16) | ((uint)code));
-
-        protected void SetHResult(int code) =>
-            this.HResult = MakeHResult(SEVERITY_ERROR, FACILITY_ITF, code);
-    }
+    protected void SetHResult(int code) =>
+        this.HResult = MakeHResult(SEVERITY_ERROR, FACILITY_ITF, code);
 }

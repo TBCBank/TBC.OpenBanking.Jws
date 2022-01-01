@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;netcoreapp3.1;net5.0</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
         <LangVersion>latest</LangVersion>
         <IsPackable>true</IsPackable>
         <PackageId>TBC.OpenBanking.Jws.Http</PackageId>
@@ -18,7 +18,6 @@
         <RepositoryType>git</RepositoryType>
         <RepositoryBranch>master</RepositoryBranch>
         <IncludeSymbols>true</IncludeSymbols>
-        <IncludeBuildOutput>true</IncludeBuildOutput>
         <IncludeContentInPack>true</IncludeContentInPack>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -30,7 +29,6 @@
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(MSBuildThisFileName).xml</DocumentationFile>
         <NoWarn>1701;1702;1591</NoWarn>
         <WarningsAsErrors>NU1605</WarningsAsErrors>
     </PropertyGroup>
@@ -50,10 +48,6 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" Condition=" '$(Configuration)' == 'Release' ">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-        </PackageReference>
         <PackageReference Include="MinVer" Version="2.5.0" Condition=" '$(Configuration)' == 'Release' ">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -61,33 +55,45 @@
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="[5.0.0,)" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="[5.0.0,)" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="6.0.*" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.*" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
-        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="[3.1.18,)" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="[3.1.18,)" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="3.1.*" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.*" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
-        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="[5.0.0,)" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="[5.0.0,)" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="5.0.*" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.*" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="6.0.*" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.*" />
+    </ItemGroup>
+
+    <ItemGroup Label="SourceLink">
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" Condition=" '$(Configuration)|$(GITHUB_ACTIONS)' == 'Release|true' ">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.SourceLink.AzureDevOpsServer.Git" Version="1.1.1" Condition=" '$(Configuration)|$(TF_BUILD)' == 'Release|true' ">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\TBC.OpenBanking.Jws\src\TBC.OpenBanking.Jws.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-        <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute" Condition="$(BuildNumber) != ''">
-            <_Parameter1>BuildNumber</_Parameter1>
-            <_Parameter2>$(BuildNumber)</_Parameter2>
-        </AssemblyAttribute>
-        <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute" Condition="$(BuildId) != ''">
-            <_Parameter1>BuildId</_Parameter1>
-            <_Parameter2>$(BuildId)</_Parameter2>
-        </AssemblyAttribute>
+    <ItemGroup Label="Assembly Metadata">
+        <AssemblyMetadata Include="BuildNumber" Value="$(BuildNumber)" Condition=" $(BuildNumber) != '' " />
+        <AssemblyMetadata Include="BuildId" Value="$(BuildId)" Condition=" $(BuildId) != '' " />
+        <InternalsVisibleTo Include="$(AssemblyName).Tests" />
+        <InternalsVisibleTo Include="$(AssemblyName).IntegrationTests" />
     </ItemGroup>
 
     <ItemGroup>

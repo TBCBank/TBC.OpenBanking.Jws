@@ -20,25 +20,24 @@
  * SOFTWARE.
  */
 
-namespace TBC.OpenBanking.Jws
+namespace TBC.OpenBanking.Jws;
+
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using CultureInfo = System.Globalization.CultureInfo;
+
+internal sealed class DateFormatConverter : JsonConverter<DateTime>
 {
-    using System;
-    using System.Text.Json;
-    using System.Text.Json.Serialization;
-    using CultureInfo = System.Globalization.CultureInfo;
+    private const string DateTimeFormatString = "yyyy-MM-ddTHH:mm:ssZ";
 
-    internal sealed class DateFormatConverter : JsonConverter<DateTime>
+    public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        private const string DateTimeFormatString = "yyyy-MM-ddTHH:mm:ssZ";
+        return DateTime.ParseExact(reader.GetString(), DateTimeFormatString, CultureInfo.InvariantCulture);
+    }
 
-        public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            return DateTime.ParseExact(reader.GetString(), DateTimeFormatString, CultureInfo.InvariantCulture);
-        }
-
-        public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
-        {
-            writer.WriteStringValue(value.ToString(DateTimeFormatString));
-        }
+    public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
+    {
+        writer.WriteStringValue(value.ToString(DateTimeFormatString));
     }
 }

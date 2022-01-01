@@ -16,14 +16,10 @@ namespace WebApiHttpClientExample.Controllers
     [Route("[controller]")]
     public class CreateConsentController : ControllerBase
     {
-        private readonly ILogger<CreateConsentController> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
 
-        public CreateConsentController(
-            ILogger<CreateConsentController> logger,
-            IHttpClientFactory httpClientFactory)
+        public CreateConsentController(IHttpClientFactory httpClientFactory)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
         }
 
@@ -64,7 +60,7 @@ namespace WebApiHttpClientExample.Controllers
         }
     }
 
-    class Consents
+    internal sealed class Consents
     {
         [JsonPropertyName("access")]
         public AccountAccess? Access { get; set; } = new AccountAccess();
@@ -91,7 +87,7 @@ namespace WebApiHttpClientExample.Controllers
         }
     }
 
-    class AccountAccess
+    internal sealed class AccountAccess
     {
         [JsonPropertyName("accounts")]
         public ICollection<AccountReference>? Accounts { get; set; }
@@ -118,7 +114,7 @@ namespace WebApiHttpClientExample.Controllers
         }
     }
 
-    class AccountReference
+    internal sealed class AccountReference
     {
         [JsonPropertyName("iban")]
         public string? Iban { get; set; }
@@ -151,7 +147,7 @@ namespace WebApiHttpClientExample.Controllers
         }
     }
 
-    class AdditionalInformationAccess
+    internal sealed class AdditionalInformationAccess
     {
         [JsonPropertyName("ownerName")]
         public ICollection<AccountReference>? OwnerName { get; set; }

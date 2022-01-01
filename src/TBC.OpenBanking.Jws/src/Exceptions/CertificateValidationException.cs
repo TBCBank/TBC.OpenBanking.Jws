@@ -20,61 +20,60 @@
  * SOFTWARE.
  */
 
-namespace TBC.OpenBanking.Jws.Exceptions
+namespace TBC.OpenBanking.Jws.Exceptions;
+
+using System;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+
+[Serializable]
+public class CertificateValidationException : JwsException
 {
-    using System;
-    using System.Security.Cryptography.X509Certificates;
-    using System.Text;
+    private const int ErrorCode = 102;
+    private readonly string message;
 
-    [Serializable]
-    public class CertificateValidationException : JwsException
+    public CertificateValidationException(string message)
+        : base(message)
     {
-        private const int ErrorCode = 102;
-        private readonly string message;
+        this.SetHResult(ErrorCode);
+    }
 
-        public CertificateValidationException(string message)
-            : base(message)
+    public CertificateValidationException(X509ChainStatus[] statuses, string message)
+    {
+        this.SetHResult(ErrorCode);
+
+        if (statuses != null)
         {
-            this.SetHResult(ErrorCode);
-        }
+            var sb = new StringBuilder();
+            sb.Append(message).Append(". ");
 
-        public CertificateValidationException(X509ChainStatus[] statuses, string message)
-        {
-            this.SetHResult(ErrorCode);
-
-            if (statuses != null)
+            int i = 0;
+            foreach (var status in statuses)
             {
-                var sb = new StringBuilder();
-                sb.Append(message).Append(". ");
-
-                int i = 0;
-                foreach (var status in statuses)
-                {
-                    sb.Append(++i)
-                        .Append(". Status: ")
-                        .Append(status.Status.ToString())
-                        .Append(" Desc: ")
-                        .Append(status.StatusInformation)
-                        .Append("; ");
-                }
-
-                this.message = sb.ToString();
+                sb.Append(++i)
+                    .Append(". Status: ")
+                    .Append(status.Status.ToString())
+                    .Append(" Desc: ")
+                    .Append(status.StatusInformation)
+                    .Append("; ");
             }
-            else
-                this.message = message;
-        }
 
-        public override string Message { get => this.message; }
-
-        public CertificateValidationException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-            this.SetHResult(ErrorCode);
+            this.message = sb.ToString();
         }
+        else
+            this.message = message;
+    }
 
-        public CertificateValidationException()
-        {
-            this.SetHResult(ErrorCode);
-        }
+    public override string Message { get => this.message; }
+
+    public CertificateValidationException(string message, Exception innerException)
+        : base(message, innerException)
+    {
+        this.SetHResult(ErrorCode);
+    }
+
+    public CertificateValidationException()
+    {
+        this.SetHResult(ErrorCode);
     }
 }

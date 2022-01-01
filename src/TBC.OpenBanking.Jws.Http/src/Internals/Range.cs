@@ -125,7 +125,7 @@ namespace System
 
         /// <summary>Indicates whether the current Index object is equal to another object of the same type.</summary>
         /// <param name="value">An object to compare with this object</param>
-        public override bool Equals(object? value) => value is Index && _value == ((Index)value)._value;
+        public override bool Equals(object? value) => value is Index index && _value == index._value;
 
         /// <summary>Indicates whether the current Index object is equal to another Index object.</summary>
         /// <param name="other">An object to compare with this object</param>
@@ -261,17 +261,11 @@ namespace System
         {
             int start;
             Index startIndex = Start;
-            if (startIndex.IsFromEnd)
-                start = length - startIndex.Value;
-            else
-                start = startIndex.Value;
+            start = startIndex.IsFromEnd ? length - startIndex.Value : startIndex.Value;
 
             int end;
             Index endIndex = End;
-            if (endIndex.IsFromEnd)
-                end = length - endIndex.Value;
-            else
-                end = endIndex.Value;
+            end = endIndex.IsFromEnd ? length - endIndex.Value : endIndex.Value;
 
             if ((uint)end > (uint)length || (uint)start > (uint)end)
             {
