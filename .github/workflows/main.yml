@@ -30,10 +30,10 @@ jobs:
       with:
         fetch-depth: 1
 
-    - name: Setup .NET 5 SDK
+    - name: Setup .NET 6 SDK
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.x
+        dotnet-version: 6.0.x
 
     - name: Restore
       run: dotnet restore --disable-parallel -p:Configuration=Release
