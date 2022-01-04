@@ -161,7 +161,11 @@ public sealed class X509CertificateLocator : IDisposable
                 userInfo = WebUtility.UrlDecode(userInfo);
                 string? password;
 
+#if NETCOREAPP3_1_OR_GREATER
+                if (userInfo.Contains(':'))
+#else
                 if (userInfo.Contains(":"))
+#endif
                 {
                     // 2nd element is the password
 #if (!NETSTANDARD2_0 && !NETFRAMEWORK)
@@ -304,13 +308,13 @@ public sealed class X509CertificateLocator : IDisposable
 
     private sealed class Converter : TypeConverter
     {
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) =>
+        public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) =>
             sourceType == typeof(string) || sourceType == typeof(Uri);
 
-        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) =>
+        public override bool CanConvertTo(ITypeDescriptorContext? context, Type? destinationType) =>
             destinationType == typeof(string) || destinationType == typeof(Uri);
 
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) =>
+        public override object ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) =>
             value switch
             {
                 string s => Create(new Uri(s, UriKind.Absolute)),
@@ -318,7 +322,7 @@ public sealed class X509CertificateLocator : IDisposable
                 _ => throw new FormatException("Unable to parse X.509 certificate URL"),
             };
 
-        public override object? ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+        public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type? destinationType)
         {
             if (value is X509CertificateLocator c)
             {
