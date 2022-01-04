@@ -20,27 +20,24 @@
  * SOFTWARE.
  */
 
-namespace TBC.OpenBanking.Jws
+namespace TBC.OpenBanking.Jws;
+
+/// <summary>
+/// Implementation of <see href="https://datatracker.ietf.org/doc/html/rfc4648#section-5"/>.
+/// </summary>
+public static class Base64Url
 {
     /// <summary>
-    /// Implementation of <see href="https://datatracker.ietf.org/doc/html/rfc4648#section-5"/>.
+    /// Converts base64url string to its binary representation.
     /// </summary>
-    public static class Base64Url
-    {
-        /// <summary>
-        /// Converts Base64URL string to its binary representation
-        /// </summary>
-        /// <param name="base64Url">Base64URL-encoded string</param>
-        /// <returns>Binary representation</returns>
-        public static byte[] DecodeBase64Url(this string base64Url) =>
-            WebEncoders.Base64UrlDecode(base64Url);
+    /// <param name="base64Url">base64url-encoded string</param>
+    /// <returns>Binary representation</returns>
+    public static byte[] DecodeBase64Url(this string base64Url) => WebEncoders.Base64UrlDecode(base64Url);
 
-        /// <summary>
-        /// Convert binary block to Base64URL encoding
-        /// </summary>
-        /// <param name="data">input byte array</param>
-        /// <returns>Base64URL encoded string</returns>
-        public static string EncodeBase64Url(this byte[] data) =>
-            WebEncoders.Base64UrlEncode(data);
-    }
+    /// <summary>
+    /// Convert binary block to base64url encoding.
+    /// </summary>
+    /// <param name="data">input byte array</param>
+    /// <returns>base64url encoded string</returns>
+    public static string EncodeBase64Url(this byte[] data) => WebEncoders.Base64UrlEncode(data);
 }

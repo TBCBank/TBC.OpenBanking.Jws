@@ -20,37 +20,36 @@
  * SOFTWARE.
  */
 
-namespace TBC.OpenBanking.Jws.Exceptions
+namespace TBC.OpenBanking.Jws.Exceptions;
+
+using System;
+using System.Runtime.Serialization;
+
+[Serializable]
+public class HeaderMissingException : JwsException
 {
-    using System;
-    using System.Runtime.Serialization;
+    private const int ErrorCode = 101;
 
-    [Serializable]
-    public class HeaderMissingException : JwsException
+    public HeaderMissingException()
     {
-        private const int ErrorCode = 101;
+        this.SetHResult(ErrorCode);
+    }
 
-        public HeaderMissingException()
-        {
-            this.SetHResult(ErrorCode);
-        }
+    public HeaderMissingException(string message)
+        : base(message)
+    {
+        this.SetHResult(ErrorCode);
+    }
 
-        public HeaderMissingException(string message)
-            : base(message)
-        {
-            this.SetHResult(ErrorCode);
-        }
+    public HeaderMissingException(string message, Exception innerException)
+        : base(message, innerException)
+    {
+        this.SetHResult(ErrorCode);
+    }
 
-        public HeaderMissingException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-            this.SetHResult(ErrorCode);
-        }
-
-        protected HeaderMissingException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            this.SetHResult(ErrorCode);
-        }
+    protected HeaderMissingException(SerializationInfo info, StreamingContext context)
+        : base(info, context)
+    {
+        this.SetHResult(ErrorCode);
     }
 }

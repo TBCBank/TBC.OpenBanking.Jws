@@ -20,49 +20,45 @@
  * SOFTWARE.
  */
 
-namespace TBC.OpenBanking.Jws
+namespace TBC.OpenBanking.Jws;
+
+using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using JavaScriptEncoder = System.Text.Encodings.Web.JavaScriptEncoder;
+
+static internal class Helper
 {
-    using System.Runtime.CompilerServices;
-    using System.Text.Json;
-    using System.Text.Json.Serialization;
-    using JavaScriptEncoder = System.Text.Encodings.Web.JavaScriptEncoder;
+    private static readonly JsonSerializerOptions Options;
 
-    static internal class Helper
+    static Helper()
     {
-        private static readonly JsonSerializerOptions Options;
+        // These options match Newtonsoft.Json defaults, more or less.
 
-        static Helper()
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
         {
-            // These options match Newtonsoft.Json defaults, more or less.
+            AllowTrailingCommas         = true,
+            DefaultBufferSize           = 81920,  // Keeping under large object heap treshold (85K)
+            MaxDepth                    = 128,  // Newtonsoft has no limit on this
+            DictionaryKeyPolicy         = JsonNamingPolicy.CamelCase,
+            Encoder                     = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+            IncludeFields               = false,
+            NumberHandling              = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals,
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy        = JsonNamingPolicy.CamelCase,
+            ReadCommentHandling         = JsonCommentHandling.Skip,
+            WriteIndented               = false,
+        };
 
-            var options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
-            {
-                AllowTrailingCommas         = true,
-                DefaultBufferSize           = 81920,  // Keeping under large object heap treshold (85K)
-                MaxDepth                    = 128,  // Newtonsoft has no limit on this
-                DictionaryKeyPolicy         = JsonNamingPolicy.CamelCase,
-                Encoder                     = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-                IncludeFields               = false,
-                NumberHandling              = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals,
-                PropertyNameCaseInsensitive = true,
-                PropertyNamingPolicy        = JsonNamingPolicy.CamelCase,
-                ReadCommentHandling         = JsonCommentHandling.Skip,
-                WriteIndented               = false,
-            };
-
-            Options = options;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static internal string SerializeToJson(object obj) =>
-            JsonSerializer.Serialize(obj, options: Options);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static internal string SerializeToJson<T>(T obj) =>
-            JsonSerializer.Serialize<T>(obj, options: Options);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static internal T DeserializeFromJson<T>(string jsonString) =>
-            JsonSerializer.Deserialize<T>(jsonString, options: Options);
+        Options = options;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static internal string SerializeToJson(object obj) => JsonSerializer.Serialize(obj, options: Options);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static internal string SerializeToJson<T>(T obj) => JsonSerializer.Serialize<T>(obj, options: Options);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static internal T DeserializeFromJson<T>(string jsonString) => JsonSerializer.Deserialize<T>(jsonString, options: Options);
 }

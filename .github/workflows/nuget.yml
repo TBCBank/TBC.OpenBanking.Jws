@@ -26,10 +26,10 @@ jobs:
       with:
         fetch-depth: 10
 
-    - name: Setup .NET 5 SDK
+    - name: Setup .NET 6 SDK
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.x
+        dotnet-version: 6.0.x
         include-prerelease: false
 
     # Use vanilla NuGet.exe because dotnet nuget command has a bug: it ignores --source parameter

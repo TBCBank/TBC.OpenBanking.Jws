@@ -20,23 +20,22 @@
  * SOFTWARE.
  */
 
-namespace TBC.OpenBanking.Jws
+namespace TBC.OpenBanking.Jws;
+
+using System.Security.Cryptography;
+
+public interface ISigner
 {
-    using System.Security.Cryptography;
+    byte[] SignData(byte[] data);
 
-    public interface ISigner
-    {
-        byte[] SignData(byte[] data);
+    /// <summary>
+    /// <para>Short name for algorithm. Corresponds to JWS &quot;alg&quot; header parameter.</para>
+    /// <para>See <see cref="SupportedAlgorithms"/> for supported names.</para>
+    /// </summary>
+    string Name { get; }
 
-        /// <summary>
-        /// <para>Short name for algorithm. Corresponds to JWS &quot;alg&quot; header parameter.</para>
-        /// <para>See <see cref="SupportedAlgorithms"/> for supported names.</para>
-        /// </summary>
-        string Name { get; }
-
-        /// <summary>
-        /// Cryptographic Hash algorithm name used in signature.
-        /// </summary>
-        HashAlgorithmName HashAlgorithmName { get; }
-    }
+    /// <summary>
+    /// Cryptographic Hash algorithm name used in signature.
+    /// </summary>
+    HashAlgorithmName HashAlgorithmName { get; }
 }

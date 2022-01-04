@@ -20,193 +20,189 @@
  * SOFTWARE.
  */
 
-namespace TBC.OpenBanking.Jws
+namespace TBC.OpenBanking.Jws;
+
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+
+/// <summary>
+/// <para>
+///     Table is based on <see href="https://tools.ietf.org/html/rfc7518#section-3.1"/>
+/// </para>
+/// <code>
+///     +--------------+-------------------------------+--------------------+
+///     | "alg" Param  | Digital Signature or MAC      | Implementation     |
+///     | Value        | Algorithm                     | Requirements       |
+///     +--------------+-------------------------------+--------------------+
+///     | ES256        | ECDSA using P-256 and SHA-256 | Recommended+       |
+///     | ES384        | ECDSA using P-384 and SHA-384 | Optional           |
+///     | ES512        | ECDSA using P-521 and SHA-512 | Optional           |
+///     +--------------+-------------------------------+--------------------+
+/// </code>
+/// </summary>
+public class AlgorithmEcdsa : Algorithm
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.Security.Cryptography;
-    using System.Security.Cryptography.X509Certificates;
-    using System.Text;
+    private ECDsa ecdPrivate;
+    private ECDsa ecdPublic;
+    private int hashSize;
+    private HashAlgorithmName hashName;
+    private string algorithName;
+
+    /// <inheritdoc/>
+    public override string Name => algorithName;
+
+    /// <inheritdoc/>
+    public override HashAlgorithmName HashAlgorithmName => hashName;
+
+    public AlgorithmEcdsa(X509Certificate2 cert, HashAlgorithmName hashName)
+    {
+        if (cert == null) throw new ArgumentNullException(nameof(cert));
+        if (!cert.HasPrivateKey) throw new ArgumentException("Certificate should contain private key", nameof(cert));
+
+        var privateKey = cert.GetECDsaPrivateKey();
+        var publicKey = cert.GetECDsaPublicKey();
+
+        Init(privateKey, publicKey, hashName);
+    }
+
+    public AlgorithmEcdsa(int keySize, HashAlgorithmName hashName)
+    {
+        var e = ECDsa.Create();
+        e.KeySize = keySize;
+
+        Init(e, e, hashName);
+    }
+
+    public AlgorithmEcdsa(ECDsa e, HashAlgorithmName hashName)
+    {
+        // TODO: The right way is to check if ECDsa contains private and public and set rsaPrivate and rsaPublic accordingly
+        Init(e, e, hashName);
+    }
+
+    public AlgorithmEcdsa(ECParameters parameters, HashAlgorithmName hashName)
+    {
+        var e = ECDsa.Create();
+        e.ImportParameters(parameters);
+
+        // TODO: The right way is to check if ECDsa contains private and public and set rsaPrivate and rsaPublic accordingly
+        Init(e, e, hashName);
+    }
+
+    ///// <summary>
+    ///// ECDsa Cryptographic service provider.
+    ///// </summary>
+    //public ECDsa AsymmetricAlgorithm => ecdPrivate;
 
     /// <summary>
-    /// <para>
-    ///     Table is based on <see href="https://tools.ietf.org/html/rfc7518#section-3.1"/>
-    /// </para>
-    /// <code>
-    ///     <para> +--------------+-------------------------------+--------------------+ </para>
-    ///     <para> | "alg" Param  | Digital Signature or MAC      | Implementation     | </para>
-    ///     <para> | Value        | Algorithm                     | Requirements       | </para>
-    ///     <para> +--------------+-------------------------------+--------------------+ </para>
-    ///     <para> | ES256        | ECDSA using P-256 and SHA-256 | Recommended+       | </para>
-    ///     <para> | ES384        | ECDSA using P-384 and SHA-384 | Optional           | </para>
-    ///     <para> | ES512        | ECDSA using P-521 and SHA-512 | Optional           | </para>
-    ///     <para> +--------------+-------------------------------+--------------------+ </para>
-    /// </code>
+    /// Signs data.
     /// </summary>
-    public class AlgorithmEcdsa : Algorithm
+    /// <param name="headerEncoded">Encoded properties to include in the header.</param>
+    /// <param name="payloadEncoded">Encoded properties to include in the payload.</param>
+    /// <returns>Signature encoded as Base64Url string</returns>
+    public override string Sign(string headerEncoded, string payloadEncoded)
     {
-        private ECDsa ecdPrivate;
-        private ECDsa ecdPublic;
-        private int hashSize;
-        private HashAlgorithmName hashName;
-        private string algorithName;
+        if (ecdPrivate == null) throw new CryptographicException("Private key is not set");
 
-        /// <inheritdoc/>
-        public override string Name => algorithName;
+        byte[] data = Encoding.ASCII.GetBytes(headerEncoded + "." + payloadEncoded);
+        byte[] signature = SignData(data);
 
-        /// <inheritdoc/>
-        public override HashAlgorithmName HashAlgorithmName => hashName;
+        return signature.EncodeBase64Url();
+    }
 
-        public AlgorithmEcdsa(X509Certificate2 cert, HashAlgorithmName hashName)
+    /// <inheritdoc/>
+    public override byte[] SignData(byte[] data)
+    {
+        if (ecdPrivate == null) throw new CryptographicException("Private key is not set");
+
+        byte[] signature;
+        lock (ecdPrivate)
         {
-            if (cert == null) throw new ArgumentNullException(nameof(cert));
-            if (!cert.HasPrivateKey) throw new ArgumentException("Certificate should contain private key", nameof(cert));
-
-            var privateKey = cert.GetECDsaPrivateKey();
-            var publicKey = cert.GetECDsaPublicKey();
-
-            Init(privateKey, publicKey, hashName);
+            signature = ecdPrivate.SignData(data, hashName);
         }
 
-        public AlgorithmEcdsa(int keySize, HashAlgorithmName hashName)
-        {
-            var e = ECDsa.Create();
-            e.KeySize = keySize;
+        return signature;
+    }
 
-            Init(e, e, hashName);
+    /// <summary>
+    /// Checks if a signature is valid.
+    /// </summary>
+    /// <param name="headerEncoded">Encoded properties to include in the header.</param>
+    /// <param name="payloadEncoded">Encoded properties to include in the payload.</param>
+    /// <param name="signatureEncoded">Encoded signature.</param>
+    /// <returns>If the signature is valid.</returns>
+    public override bool VerifySignature(string headerEncoded, string payloadEncoded, string signatureEncoded)
+    {
+        if (ecdPublic == null) throw new CryptographicException("Public key is not set");
+
+        byte[] data = Encoding.ASCII.GetBytes(headerEncoded + "." + payloadEncoded);
+        return ecdPublic.VerifyData(data, signatureEncoded.DecodeBase64Url(), hashName);
+    }
+
+    /// <inheritdoc/>
+    public override void Dispose()
+    {
+        ecdPrivate?.Dispose();
+
+        if (ecdPublic != null && ecdPublic != ecdPrivate)
+        {
+            ecdPublic.Dispose();
         }
 
-        public AlgorithmEcdsa(ECDsa e, HashAlgorithmName hashName)
+        GC.SuppressFinalize(this);
+    }
+
+    public override IDictionary<string, string> GetJwk(bool includePrivate)
+    {
+        throw new NotImplementedException();
+
+        /*
+        ECParameters parameters = ecdPrivate.ExportParameters(includePrivate);
+
+        var dic = new Dictionary<string, string>(StringComparer.Ordinal)
         {
-            // TODO: The right way is to check if ECDsa contains private and public and set rsaPrivate and rsaPublic accordingly
-            Init(e, e, hashName);
+            { "kty", "EC" },
+            { "crv", "P-" + hashSize.ToString(CultureInfo.InvariantCulture) },
+            { "x", Base64Url.Encode(parameters.Q.X)},
+            { "y", Base64Url.Encode(parameters.Q.Y)},
+        };
+
+        if (includePrivate)
+        {
+            dic.Add("d", Base64Url.Encode(parameters.D));
         }
 
-        public AlgorithmEcdsa(ECParameters parameters, HashAlgorithmName hashName)
-        {
-            var e = ECDsa.Create();
-            e.ImportParameters(parameters);
+        return dic;
+        */
+    }
 
-            // TODO: The right way is to check if ECDsa contains private and public and set rsaPrivate and rsaPublic accordingly
-            Init(e, e, hashName);
-        }
+    private void Init(ECDsa privateKey, ECDsa publickey, HashAlgorithmName hashName)
+    {
+        ecdPrivate = privateKey;
+        ecdPublic = publickey;
+        hashSize = GetHashSize(hashName);
+        this.hashName = hashName;
+        algorithName = CreateAlgorithmName(hashSize);
+    }
 
-        ///// <summary>
-        ///// ECDsa Cryptographic service provider.
-        ///// </summary>
-        //public ECDsa AsymmetricAlgorithm => ecdPrivate;
+    private int GetHashSize(HashAlgorithmName hashName)
+    {
+        if (hashName == HashAlgorithmName.SHA256)
+            return 256;
+        if (hashName == HashAlgorithmName.SHA384)
+            return 384;
+        if (hashName == HashAlgorithmName.SHA512)
+            return 512;
 
-        /// <summary>
-        /// Signs data.
-        /// </summary>
-        /// <param name="headerEncoded">Encoded properties to include in the header.</param>
-        /// <param name="payloadEncoded">Encoded properties to include in the payload.</param>
-        /// <returns>Signature encoded as Base64Url string</returns>
-        public override string Sign(string headerEncoded, string payloadEncoded)
-        {
-            if (ecdPrivate == null) throw new CryptographicException("Private key is not set");
+        throw new CryptographicException($"Not suitable hash algorithm {hashName.Name}");
+    }
 
-            byte[] data = Encoding.ASCII.GetBytes(headerEncoded + "." + payloadEncoded);
-            byte[] signature = SignData(data);
-
-            return signature.EncodeBase64Url();
-        }
-
-        /// <inheritdoc/>
-        public override byte[] SignData(byte[] data)
-        {
-            if (ecdPrivate == null) throw new CryptographicException("Private key is not set");
-
-            byte[] signature;
-            lock (ecdPrivate)
-            {
-                signature = ecdPrivate.SignData(data, hashName);
-            }
-
-            return signature;
-        }
-
-        /// <summary>
-        /// Checks if a signature is valid.
-        /// </summary>
-        /// <param name="headerEncoded">Encoded properties to include in the header.</param>
-        /// <param name="payloadEncoded">Encoded properties to include in the payload.</param>
-        /// <param name="signatureEncoded">Encoded signature.</param>
-        /// <returns>If the signature is valid.</returns>
-        public override bool VerifySignature(string headerEncoded, string payloadEncoded, string signatureEncoded)
-        {
-            if (ecdPublic == null) throw new CryptographicException("Public key is not set");
-
-            byte[] data = Encoding.ASCII.GetBytes(headerEncoded + "." + payloadEncoded);
-            return ecdPublic.VerifyData(data, signatureEncoded.DecodeBase64Url(), hashName);
-        }
-
-        /// <inheritdoc/>
-        public override void Dispose()
-        {
-            if (ecdPrivate != null)
-            {
-                ecdPrivate.Dispose();
-            }
-
-            if (ecdPublic != null && ecdPublic != ecdPrivate)
-            {
-                ecdPublic.Dispose();
-            }
-
-            GC.SuppressFinalize(this);
-        }
-
-        public override IDictionary<string, string> GetJwk(bool includePrivate)
-        {
-            throw new NotImplementedException();
-
-            /*
-            ECParameters parameters = ecdPrivate.ExportParameters(includePrivate);
-
-            var dic = new Dictionary<string, string>(StringComparer.Ordinal)
-            {
-                { "kty", "EC" },
-                { "crv", "P-" + hashSize.ToString(CultureInfo.InvariantCulture) },
-                { "x", Base64Url.Encode(parameters.Q.X)},
-                { "y", Base64Url.Encode(parameters.Q.Y)},
-            };
-
-            if (includePrivate)
-            {
-                dic.Add("d", Base64Url.Encode(parameters.D));
-            }
-
-            return dic;
-            */
-        }
-
-        private void Init(ECDsa privateKey, ECDsa publickey, HashAlgorithmName hashName)
-        {
-            ecdPrivate = privateKey;
-            ecdPublic = publickey;
-            hashSize = GetHashSize(hashName);
-            this.hashName = hashName;
-            algorithName = CreateAlgorithmName(hashSize);
-        }
-
-        private int GetHashSize(HashAlgorithmName hashName)
-        {
-            if (hashName == HashAlgorithmName.SHA256)
-                return 256;
-            if (hashName == HashAlgorithmName.SHA384)
-                return 384;
-            if (hashName == HashAlgorithmName.SHA512)
-                return 512;
-
-            throw new CryptographicException($"Not suitable hash algorithm {hashName.Name}");
-        }
-
-        private string CreateAlgorithmName(int hashSize)
-        {
-            return "ES" + hashSize.ToString(CultureInfo.InvariantCulture);
-        }
+    private string CreateAlgorithmName(int hashSize)
+    {
+        return "ES" + hashSize.ToString(CultureInfo.InvariantCulture);
     }
 }
 

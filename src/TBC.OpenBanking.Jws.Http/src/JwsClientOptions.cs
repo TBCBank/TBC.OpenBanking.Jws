@@ -22,45 +22,44 @@
 
 #nullable enable
 
-namespace TBC.OpenBanking.Jws.Http
+namespace TBC.OpenBanking.Jws.Http;
+
+using Microsoft.Extensions.Options;
+
+public sealed class JwsClientOptions : IOptions<JwsClientOptions>
 {
-    using Microsoft.Extensions.Options;
-
-    public sealed class JwsClientOptions : IOptions<JwsClientOptions>
+    public bool Enabled
     {
-        public bool Enabled
-        {
-            get; set;
-        } = true;
+        get; set;
+    } = true;
 
-        /// <summary>
-        /// See <see cref="SupportedAlgorithms"/> class for possible values.
-        /// </summary>
-        public string? AlgorithmName
-        {
-            get; set;
-        } = "RS256";
+    /// <summary>
+    /// See <see cref="SupportedAlgorithms"/> class for possible values.
+    /// </summary>
+    public string? AlgorithmName
+    {
+        get; set;
+    } = "RS256";
 
-        public X509CertificateLocator? SigningCertificate
-        {
-            get; set;
-        }
-
-        public bool CheckSignatureTimeConstraint
-        {
-            get; set;
-        } = true;
-
-        public bool CheckCertificateRevocationList
-        {
-            get; set;
-        } = true;
-
-        public bool ValidateSignature
-        {
-            get; set;
-        } = true;
-
-        public JwsClientOptions Value => this;
+    public X509CertificateLocator? SigningCertificate
+    {
+        get; set;
     }
+
+    public bool CheckSignatureTimeConstraint
+    {
+        get; set;
+    } = true;
+
+    public bool CheckCertificateRevocationList
+    {
+        get; set;
+    } = true;
+
+    public bool ValidateSignature
+    {
+        get; set;
+    } = true;
+
+    public JwsClientOptions Value => this;
 }
