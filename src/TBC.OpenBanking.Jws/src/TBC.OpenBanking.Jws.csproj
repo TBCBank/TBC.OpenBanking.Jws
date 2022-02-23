@@ -33,7 +33,7 @@
         <WarningsAsErrors>NU1605</WarningsAsErrors>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(TF_BUILD)' == 'true' or '$(GITHUB_ACTIONS)' == 'true' ">
+    <PropertyGroup Condition=" '$(TF_BUILD)' == 'True' or '$(GITHUB_ACTIONS)' == 'true' ">
         <Deterministic>true</Deterministic>
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
         <DisableImplicitAspNetCoreAnalyzers>true</DisableImplicitAspNetCoreAnalyzers>
@@ -41,6 +41,7 @@
         <EnableNETAnalyzers>false</EnableNETAnalyzers>
         <RunAnalyzers>false</RunAnalyzers>
         <RestoreDisableParallel>true</RestoreDisableParallel>
+        <MinVerVerbosity>detailed</MinVerVerbosity>
     </PropertyGroup>
 
     <ItemGroup>
@@ -93,5 +94,12 @@
     <ItemGroup>
         <None Include="..\..\images\icon.png" Pack="true" PackagePath="\" />
     </ItemGroup>
+
+    <Target Name="TbcJws_CalculateAssemblyVersions" AfterTargets="MinVer">
+        <PropertyGroup>
+            <AssemblyVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch).0</AssemblyVersion>
+            <InformationalVersion Condition=" '$(GITHUB_ACTIONS)' == 'true' ">$(MinVerVersion)+$(GITHUB_SHA)</InformationalVersion>
+        </PropertyGroup>
+    </Target>
 
 </Project>
