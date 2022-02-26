@@ -4,20 +4,16 @@ name: "CodeQL"
 
 on:
   push:
-    paths-ignore:
-      - 'images/**'
-      - 'src/images/**'
-      - 'src/examples/**'
-      - 'README.md'
-    branches: [ master ]
+    paths:
+      - '**.cs'
+      - '**.csproj'
+    branches: [master]
   pull_request:
-    paths-ignore:
-      - 'images/**'
-      - 'src/images/**'
-      - 'src/examples/**'
-      - 'README.md'
+    paths:
+      - '**.cs'
+      - '**.csproj'
     # The branches below must be a subset of the branches above
-    branches: [ master ]
+    branches: [master]
   schedule:
     - cron: '32 11 * * 3'
 
@@ -33,13 +29,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'csharp' ]
+        language: ['csharp']
         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python' ]
         # Learn more: https://docs.github.com/en/free-pro-team@latest/github/finding-security-vulnerabilities-and-errors-in-your-code/configuring-code-scanning#changing-the-languages-that-are-analyzed
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 2
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
