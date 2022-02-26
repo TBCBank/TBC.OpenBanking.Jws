@@ -1,6 +1,7 @@
 # TBC.OpenBanking.Jws
 
 [![NuGet version (TBC.OpenBanking.Jws)](https://img.shields.io/nuget/v/TBC.OpenBanking.Jws.svg?label=TBC.OpenBanking.Jws)](https://www.nuget.org/packages/TBC.OpenBanking.Jws/) [![NuGet version (TBC.OpenBanking.Jws.Http)](https://img.shields.io/nuget/v/TBC.OpenBanking.Jws.Http.svg?label=TBC.OpenBanking.Jws.Http)](https://www.nuget.org/packages/TBC.OpenBanking.Jws.Http/)
+[![CI](https://github.com/TBCBank/TBC.OpenBanking.Jws/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/TBCBank/TBC.OpenBanking.Jws/actions/workflows/main.yml) [![CodeQL](https://github.com/TBCBank/TBC.OpenBanking.Jws/actions/workflows/codeql-analysis.yml/badge.svg?branch=master)](https://github.com/TBCBank/TBC.OpenBanking.Jws/actions/workflows/codeql-analysis.yml)
 
 ## JSON ვებხელმოწერა ღია ბანკინგის გარემოში
 
