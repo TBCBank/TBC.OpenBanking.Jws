@@ -3,6 +3,7 @@
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
         <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
         <IsPackable>true</IsPackable>
         <PackageId>TBC.OpenBanking.Jws.Http</PackageId>
         <Title>TBC Open Banking JWS extensions for HTTP client</Title>
@@ -10,7 +11,7 @@
         <Copyright>TBC Bank</Copyright>
         <PackageTags>jws;openapi;openbanking;signature;aspnet;aspnetcore</PackageTags>
         <Company>TBC Bank</Company>
-        <Authors>Giorgi Chakhidze</Authors>
+        <Authors>george.chakhidze</Authors>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageIcon>icon.png</PackageIcon>
@@ -24,6 +25,7 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <DebugType>embedded</DebugType>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <AnalysisLevel>latest-all</AnalysisLevel>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -40,16 +42,18 @@
         <DisableImplicitComponentsAnalyzers>true</DisableImplicitComponentsAnalyzers>
         <EnableNETAnalyzers>false</EnableNETAnalyzers>
         <RunAnalyzers>false</RunAnalyzers>
-        <RestoreDisableParallel>true</RestoreDisableParallel>
-        <MinVerVerbosity>detailed</MinVerVerbosity>
     </PropertyGroup>
+
+    <ItemGroup>
+        <Using Include="System.Globalization.CultureInfo" Alias="CultureInfo" />
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="MinVer" Version="2.5.0" Condition=" '$(Configuration)' == 'Release' ">
+        <PackageReference Include="MinVer" Version="3.1.0" Condition=" '$(Configuration)' == 'Release' ">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -80,7 +84,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.SourceLink.AzureDevOpsServer.Git" Version="1.1.1" Condition=" '$(Configuration)|$(TF_BUILD)' == 'Release|true' ">
+        <PackageReference Include="Microsoft.SourceLink.AzureDevOpsServer.Git" Version="1.1.1" Condition=" '$(Configuration)|$(TF_BUILD)' == 'Release|True' ">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -95,21 +99,20 @@
         <AssemblyMetadata Include="BuildId" Value="$(BuildId)" Condition=" $(BuildId) != '' " />
         <InternalsVisibleTo Include="$(AssemblyName).Tests" />
         <InternalsVisibleTo Include="$(AssemblyName).IntegrationTests" />
+        <AssemblyAttribute Include="System.CLSCompliant">
+            <_Parameter1>false</_Parameter1>
+            <_Parameter1_IsLiteral>true</_Parameter1_IsLiteral>
+        </AssemblyAttribute>
     </ItemGroup>
 
     <ItemGroup>
         <None Include="..\..\images\icon.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 
-    <ItemGroup>
-        <Compile Remove="Internals\Range.cs" />
-        <Compile Include="Internals\Range.cs" Condition=" '$(TargetFramework)' == 'netstandard2.0' " />
-    </ItemGroup>
-
     <Target Name="TbcJws_CalculateAssemblyVersions" AfterTargets="MinVer">
         <PropertyGroup>
             <AssemblyVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch).0</AssemblyVersion>
-            <InformationalVersion Condition=" '$(GITHUB_ACTIONS)' == 'true' ">$(MinVerVersion)+$(GITHUB_SHA)</InformationalVersion>
+            <InformationalVersion Condition=" '$(GITHUB_ACTIONS)' == 'true' ">$(MinVerVersion)</InformationalVersion>
         </PropertyGroup>
     </Target>
 

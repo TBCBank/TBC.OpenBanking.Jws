@@ -99,7 +99,7 @@ public sealed class X509CertificateLocator : IDisposable
             // Get a normalized full local path:
             // (If path is relative, this will use current directory as a base path)
             //
-            var fullPath = Path.GetFullPath(_uri.LocalPath[1..]);
+            var fullPath = Path.GetFullPath(_uri.LocalPath.Substring(1));
             if (!File.Exists(fullPath))
             {
                 throw new FileNotFoundException("The PFX file was not found", fullPath);
@@ -148,7 +148,7 @@ public sealed class X509CertificateLocator : IDisposable
             // Get a normalized full local path:
             // (If path is relative, this will use current directory as the base path)
             //
-            var fullPath = Path.GetFullPath(_uri!.LocalPath[1..]);
+            var fullPath = Path.GetFullPath(_uri!.LocalPath.Substring(1));
             if (!File.Exists(fullPath))
             {
                 throw new FileNotFoundException("The PFX file was not found", fullPath);
@@ -162,7 +162,7 @@ public sealed class X509CertificateLocator : IDisposable
                 string? password;
 
 #if NETCOREAPP3_1_OR_GREATER
-                if (userInfo.Contains(':'))
+                if (userInfo.Contains(':', StringComparison.Ordinal))
 #else
                 if (userInfo.Contains(":"))
 #endif
