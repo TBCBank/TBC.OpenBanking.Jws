@@ -147,7 +147,7 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
 
         _signerCertificate = protHeader.DecodeCertificate(protHeader.EncodedCertificates[0]);
 
-        var chain = new X509Chain();
+        using var chain = new X509Chain();
 
         chain.ChainPolicy.RevocationMode = CertificateValidationFlags.RevocationMode;
         chain.ChainPolicy.RevocationFlag = CertificateValidationFlags.RevocationFlag;
