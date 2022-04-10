@@ -28,9 +28,9 @@ using System.Runtime.Serialization;
 [Serializable]
 public abstract class JwsException : Exception
 {
-    public JwsException() { }
-    public JwsException(string message) : base(message) { }
-    public JwsException(string message, Exception inner) : base(message, inner) { }
+    protected JwsException() { }
+    protected JwsException(string message) : base(message) { }
+    protected JwsException(string message, Exception inner) : base(message, inner) { }
     protected JwsException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
     protected const int SEVERITY_SUCCESS = 0;
