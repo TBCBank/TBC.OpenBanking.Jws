@@ -22,7 +22,7 @@
 
 namespace TBC.OpenBanking.Jws;
 
-public class JwsConstants
+public static class JwsConstants
 {
     public enum HeadersNecessity
     {
