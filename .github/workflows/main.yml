@@ -19,10 +19,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     env:
-      DOTNET_NOLOGO: 1
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
-      DOTNET_MULTILEVEL_LOOKUP: 1
+      DOTNET_DISABLE_GUI_ERRORS: 1
+      DOTNET_GENERATE_ASPNET_CERTIFICATE: 0
+      DOTNET_NOLOGO: 1
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
 
     steps:
     - name: Checkout
@@ -34,12 +39,15 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
+        include-prerelease: false
 
     - name: Restore
-      run: dotnet restore --disable-parallel -p:Configuration=Release
+      run: dotnet restore -p:Configuration=Release
 
     - name: Build
-      run: dotnet build -c Release --no-restore
+      run: |
+        dotnet build -c Release --no-restore -p:SourceRevisionId=$(git rev-parse --short $GITHUB_SHA)
 
-    - name: Test
-      run: dotnet test -c Release --no-restore --no-build --verbosity normal
+    # There are no tests yet.
+    #- name: Test
+    #  run: dotnet test -c Release --no-restore --no-build --verbosity normal
