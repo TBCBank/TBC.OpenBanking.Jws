@@ -25,7 +25,6 @@ namespace TBC.OpenBanking.Jws;
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using CultureInfo = System.Globalization.CultureInfo;
 
 internal sealed class DateFormatConverter : JsonConverter<DateTime>
 {
@@ -38,6 +37,6 @@ internal sealed class DateFormatConverter : JsonConverter<DateTime>
 
     public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
     {
-        writer.WriteStringValue(value.ToString(DateTimeFormatString));
+        writer.WriteStringValue(value.ToString(DateTimeFormatString, CultureInfo.InvariantCulture));
     }
 }
