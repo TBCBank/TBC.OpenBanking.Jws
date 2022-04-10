@@ -156,7 +156,12 @@ public sealed class JwsMessageHandler : DelegatingHandler
         if (request.Content is not null)
         {
             // This is ugly, but there's no better way (so far):
+
+#if NET5_0_OR_GREATER
+            httpData.Body = await request.Content!.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
+#else
             httpData.Body = await request.Content!.ReadAsByteArrayAsync().ConfigureAwait(false);
+#endif
 
             httpData.AppendHeaders(request.Content!.Headers, true);
         }
@@ -191,7 +196,7 @@ public sealed class JwsMessageHandler : DelegatingHandler
         {
             var httpData = new HttpResponseData
             {
-                StatusCode = ((uint)response.StatusCode).ToString()
+                StatusCode = ((uint)response.StatusCode).ToString(System.Globalization.CultureInfo.InvariantCulture)
             };
 
             httpData.AppendHeaders(response.Headers, true);
@@ -201,7 +206,12 @@ public sealed class JwsMessageHandler : DelegatingHandler
                 httpData.AppendHeaders(response.Content!.Headers, true);
 
                 // This is ugly, but there's no better way (so far):
+
+#if NET5_0_OR_GREATER
+                httpData.Body = await response.Content!.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
+#else
                 httpData.Body = await response.Content!.ReadAsByteArrayAsync().ConfigureAwait(false);
+#endif
             }
 
             this.verifier!.VerifySignature(httpData, DateTime.Now);

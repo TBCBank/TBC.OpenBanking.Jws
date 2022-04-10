@@ -420,21 +420,17 @@ internal static class WebEncoders
 
     private static int GetNumBase64PaddingCharsToAddForDecode(int inputLength)
     {
-        switch (inputLength % 4)
+        return (inputLength % 4) switch
         {
-            case 0:
-                return 0;
-            case 2:
-                return 2;
-            case 3:
-                return 1;
-            default:
-                throw new FormatException(
-                    string.Format(
-                        CultureInfo.CurrentCulture,
-                        EncoderResources.WebEncoders_MalformedInput,
-                        inputLength));
-        }
+            0 => 0,
+            2 => 2,
+            3 => 1,
+            _ => throw new FormatException(
+                 string.Format(
+                     CultureInfo.CurrentCulture,
+                     EncoderResources.WebEncoders_MalformedInput,
+                     inputLength)),
+        };
     }
 
     private static void ValidateParameters(int bufferLength, string inputName, int offset, int count)
@@ -469,12 +465,12 @@ internal static class WebEncoders
         /// <summary>
         /// Invalid {0}, {1} or {2} length.
         /// </summary>
-        internal static readonly string WebEncoders_InvalidCountOffsetOrLength = "Invalid {0}, {1} or {2} length.";
+        internal const string WebEncoders_InvalidCountOffsetOrLength = "Invalid {0}, {1} or {2} length.";
 
         /// <summary>
         /// Malformed input: {0} is an invalid input length.
         /// </summary>
-        internal static readonly string WebEncoders_MalformedInput = "Malformed input: {0} is an invalid input length.";
+        internal const string WebEncoders_MalformedInput = "Malformed input: {0} is an invalid input length.";
 
         /// <summary>
         /// Invalid {0}, {1} or {2} length.

@@ -63,6 +63,8 @@ public class HttpResponseData : HttpMessageData
 
     public override string ComposeHeadersForSignature(IList<string> headers, IDictionary<string, string> additionalHeaders = null)
     {
+        _ = headers ?? throw new ArgumentNullException(nameof(headers));
+
         var sb = new StringBuilder();
         foreach (var hn in headers)
         {

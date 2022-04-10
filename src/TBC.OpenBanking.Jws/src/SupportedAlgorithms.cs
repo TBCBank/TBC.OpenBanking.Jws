@@ -103,6 +103,8 @@ public static class SupportedAlgorithms
     /// <returns></returns>
     static public ISigner CreateSigner(X509Certificate2 cert, string alg)
     {
+        _ = cert ?? throw new ArgumentNullException(nameof(cert));
+
         if (!cert.HasPrivateKey)
             throw new ArgumentOutOfRangeException(nameof(cert), "Private key is missing");
 

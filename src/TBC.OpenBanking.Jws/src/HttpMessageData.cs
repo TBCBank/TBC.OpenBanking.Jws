@@ -33,7 +33,7 @@ using System.Text;
 /// </summary>
 public abstract class HttpMessageData
 {
-    protected readonly Dictionary<string, string> headers = new(StringComparer.OrdinalIgnoreCase);
+    protected readonly Dictionary<string, string> _headers = new(StringComparer.OrdinalIgnoreCase);
 
     public enum HeaderNecessity
     {
@@ -85,7 +85,7 @@ public abstract class HttpMessageData
     /// </summary>
     public IDictionary<string, string> Headers
     {
-        get => headers;
+        get => _headers;
     }
 
     public void AddHeader(string name, string value)

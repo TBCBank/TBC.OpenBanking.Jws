@@ -108,6 +108,8 @@ public class ProtectedHeader
     /// <returns></returns>
     public string EncodeCertificate(X509Certificate2 cert)
     {
+        _ = cert ?? throw new ArgumentNullException(nameof(cert));
+
         byte[] rawData = cert.Export(X509ContentType.Cert);
         return Convert.ToBase64String(rawData);
     }
