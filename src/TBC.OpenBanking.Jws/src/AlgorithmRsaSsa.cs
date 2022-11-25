@@ -32,23 +32,23 @@ using System.Text;
 /// <summary>
 /// Table is based on <see href="https://tools.ietf.org/html/rfc7518#section-3.1"/>
 /// <code>
-/// <para>+--------------+-------------------------------+--------------------+</para>
-/// <para>| "alg" Param  | Digital Signature or MAC      | Implementation     |</para>
-/// <para>| Value        | Algorithm                     | Requirements       |</para>
-/// <para>+--------------+-------------------------------+--------------------+</para>
-/// <para>| RS256        | RSASSA-PKCS1-v1_5 using       | Recommended        |</para>
-/// <para>|              | SHA-256                       |                    |</para>
-/// <para>| RS384        | RSASSA-PKCS1-v1_5 using       | Optional           |</para>
-/// <para>|              | SHA-384                       |                    |</para>
-/// <para>| RS512        | RSASSA-PKCS1-v1_5 using       | Optional           |</para>
-/// <para>|              | SHA-512                       |                    |</para>
-/// <para>| PS256        | RSASSA-PSS using SHA-256 and  | Optional           |</para>
-/// <para>|              | MGF1 with SHA-256             |                    |</para>
-/// <para>| PS384        | RSASSA-PSS using SHA-384 and  | Optional           |</para>
-/// <para>|              | MGF1 with SHA-384             |                    |</para>
-/// <para>| PS512        | RSASSA-PSS using SHA-512 and  | Optional           |</para>
-/// <para>|              | MGF1 with SHA-512             |                    |</para>
-/// <para>+--------------+-------------------------------+--------------------+</para>
+/// +--------------+-------------------------------+--------------------+
+/// | "alg" Param  | Digital Signature or MAC      | Implementation     |
+/// | Value        | Algorithm                     | Requirements       |
+/// +--------------+-------------------------------+--------------------+
+/// | RS256        | RSASSA-PKCS1-v1_5 using       | Recommended        |
+/// |              | SHA-256                       |                    |
+/// | RS384        | RSASSA-PKCS1-v1_5 using       | Optional           |
+/// |              | SHA-384                       |                    |
+/// | RS512        | RSASSA-PKCS1-v1_5 using       | Optional           |
+/// |              | SHA-512                       |                    |
+/// | PS256        | RSASSA-PSS using SHA-256 and  | Optional           |
+/// |              | MGF1 with SHA-256             |                    |
+/// | PS384        | RSASSA-PSS using SHA-384 and  | Optional           |
+/// |              | MGF1 with SHA-384             |                    |
+/// | PS512        | RSASSA-PSS using SHA-512 and  | Optional           |
+/// |              | MGF1 with SHA-512             |                    |
+/// +--------------+-------------------------------+--------------------+
 /// </code>
 /// https://tools.ietf.org/html/rfc3447#section-8.2
 /// </summary>

@@ -34,14 +34,14 @@ using System.Text;
 ///     Table is based on <see href="https://tools.ietf.org/html/rfc7518#section-3.1"/>
 /// </para>
 /// <code>
-///     +--------------+-------------------------------+--------------------+
-///     | "alg" Param  | Digital Signature or MAC      | Implementation     |
-///     | Value        | Algorithm                     | Requirements       |
-///     +--------------+-------------------------------+--------------------+
-///     | ES256        | ECDSA using P-256 and SHA-256 | Recommended+       |
-///     | ES384        | ECDSA using P-384 and SHA-384 | Optional           |
-///     | ES512        | ECDSA using P-521 and SHA-512 | Optional           |
-///     +--------------+-------------------------------+--------------------+
+///  +--------------+-------------------------------+--------------------+
+///  | "alg" Param  | Digital Signature or MAC      | Implementation     |
+///  | Value        | Algorithm                     | Requirements       |
+///  +--------------+-------------------------------+--------------------+
+///  | ES256        | ECDSA using P-256 and SHA-256 | Recommended+       |
+///  | ES384        | ECDSA using P-384 and SHA-384 | Optional           |
+///  | ES512        | ECDSA using P-521 and SHA-512 | Optional           |
+///  +--------------+-------------------------------+--------------------+
 /// </code>
 /// </summary>
 public class AlgorithmEcdsa : Algorithm

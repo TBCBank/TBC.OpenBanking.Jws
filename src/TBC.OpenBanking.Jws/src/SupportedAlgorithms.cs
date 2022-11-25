@@ -80,17 +80,17 @@ public static class SupportedAlgorithms
 
     private static readonly Dictionary<string, Func<X509Certificate2, Algorithm>> supportedAlgorithms = new(9, StringComparer.OrdinalIgnoreCase)
     {
-        [RsaPKCS1Sha256] = cert => new AlgorithmRsaSsa(cert, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1),
-        [RsaPKCS1Sha384] = cert => new AlgorithmRsaSsa(cert, HashAlgorithmName.SHA384, RSASignaturePadding.Pkcs1),
-        [RsaPKCS1Sha512] = cert => new AlgorithmRsaSsa(cert, HashAlgorithmName.SHA512, RSASignaturePadding.Pkcs1),
+        [RsaPKCS1Sha256] = static cert => new AlgorithmRsaSsa(cert, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1),
+        [RsaPKCS1Sha384] = static cert => new AlgorithmRsaSsa(cert, HashAlgorithmName.SHA384, RSASignaturePadding.Pkcs1),
+        [RsaPKCS1Sha512] = static cert => new AlgorithmRsaSsa(cert, HashAlgorithmName.SHA512, RSASignaturePadding.Pkcs1),
 
-        [RsaSsaPssSha256] = cert => new AlgorithmRsaSsa(cert, HashAlgorithmName.SHA256, RSASignaturePadding.Pss),
-        [RsaSsaPssSha384] = cert => new AlgorithmRsaSsa(cert, HashAlgorithmName.SHA384, RSASignaturePadding.Pss),
-        [RsaSsaPssSha512] = cert => new AlgorithmRsaSsa(cert, HashAlgorithmName.SHA512, RSASignaturePadding.Pss),
+        [RsaSsaPssSha256] = static cert => new AlgorithmRsaSsa(cert, HashAlgorithmName.SHA256, RSASignaturePadding.Pss),
+        [RsaSsaPssSha384] = static cert => new AlgorithmRsaSsa(cert, HashAlgorithmName.SHA384, RSASignaturePadding.Pss),
+        [RsaSsaPssSha512] = static cert => new AlgorithmRsaSsa(cert, HashAlgorithmName.SHA512, RSASignaturePadding.Pss),
 
-        [EcdsaSha256] = cert => new AlgorithmEcdsa(cert, HashAlgorithmName.SHA256),
-        [EcdsaSha384] = cert => new AlgorithmEcdsa(cert, HashAlgorithmName.SHA384),
-        [EcdsaSha512] = cert => new AlgorithmEcdsa(cert, HashAlgorithmName.SHA512),
+        [EcdsaSha256] = static cert => new AlgorithmEcdsa(cert, HashAlgorithmName.SHA256),
+        [EcdsaSha384] = static cert => new AlgorithmEcdsa(cert, HashAlgorithmName.SHA384),
+        [EcdsaSha512] = static cert => new AlgorithmEcdsa(cert, HashAlgorithmName.SHA512),
     };
 
     static public bool IsSupportedAlgorithm(string alg) => supportedAlgorithms.ContainsKey(alg);
@@ -110,7 +110,6 @@ public static class SupportedAlgorithms
 
         if (!supportedAlgorithms.TryGetValue(alg, out var creator))
         {
-            // Error. Unsupported algorithm
             throw new ArgumentOutOfRangeException(nameof(alg), $"Unsupported algorithm '{alg}'");
         }
 
@@ -127,7 +126,6 @@ public static class SupportedAlgorithms
     {
         if (!supportedAlgorithms.TryGetValue(alg, out var creator))
         {
-            // Error. Unsupported algorithm
             throw new ArgumentOutOfRangeException(nameof(alg), $"Unsupported algorithm '{alg}'");
         }
 

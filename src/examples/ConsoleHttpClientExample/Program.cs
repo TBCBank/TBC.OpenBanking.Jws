@@ -62,10 +62,9 @@ static class Program
                     })
                     .AddHttpMessageHandler(services =>
                     {
-                        var options = services.GetRequiredService<IOptions<JwsClientOptions>>();
-
+                        var options       = services.GetRequiredService<IOptions<JwsClientOptions>>();
                         var loggerFactory = services.GetRequiredService<ILoggerFactory>();
-                        var cache = services.GetRequiredService<IMemoryCache>();
+                        var cache         = services.GetRequiredService<IMemoryCache>();
 
                         return new JwsMessageHandler(options, loggerFactory, cache);
                     });
