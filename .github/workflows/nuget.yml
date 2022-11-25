@@ -29,34 +29,27 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
       with:
-        fetch-depth: 10
+        fetch-depth: 0
 
-    - name: Setup .NET 6 SDK
-      uses: actions/setup-dotnet@v2
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
-        include-prerelease: false
-
-    # Use vanilla NuGet.exe because dotnet nuget command has a bug: it ignores --source parameter
-    - name: Setup NuGet.exe
-      uses: NuGet/setup-nuget@v1
-      with:
-        nuget-api-key: ${{ secrets.NUGET_API_KEY }}
-        nuget-version: latest
-        nuget-api-key-source: 'https://api.nuget.org/v3/index.json'
+        global-json-file: global.json
 
     - name: Restore
       run: dotnet restore -p:Configuration=Release
 
     - name: Build
-      run: dotnet build -c Release --no-restore -p:SourceRevisionId=$(git rev-parse --short $env:GITHUB_SHA)
+      run: |
+        $revisionId = $(git rev-parse --short $env:GITHUB_SHA)
+        dotnet build -c Release --no-restore "-p:SourceRevisionId=$revisionId"
 
     # There are no tests yet.
     #- name: Test
     #  run: dotnet test -c Release --no-restore --no-build --verbosity normal
 
     - name: Push Jws
-      run: nuget push "src\TBC.OpenBanking.Jws\src\bin\Release\*.nupkg" -NonInteractive -SkipDuplicate -Source "https://api.nuget.org/v3/index.json" -NoSymbols -ForceEnglishOutput
+      run: dotnet nuget push "src\TBC.OpenBanking.Jws\src\bin\Release\*.nupkg" -k "${{ secrets.NUGET_API_KEY }}" -s "https://api.nuget.org/v3/index.json" -n --skip-duplicate --force-english-output
 
     - name: Push Jws.Http
-      run: nuget push "src\TBC.OpenBanking.Jws.Http\src\bin\Release\*.nupkg" -NonInteractive -SkipDuplicate -Source "https://api.nuget.org/v3/index.json" -NoSymbols -ForceEnglishOutput
+      run: dotnet nuget push "src\TBC.OpenBanking.Jws.Http\src\bin\Release\*.nupkg" -k "${{ secrets.NUGET_API_KEY }}" -s "https://api.nuget.org/v3/index.json" -n --skip-duplicate --force-english-output

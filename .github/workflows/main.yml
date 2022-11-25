@@ -35,11 +35,10 @@ jobs:
       with:
         fetch-depth: 1
 
-    - name: Setup .NET 6 SDK
-      uses: actions/setup-dotnet@v2
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
-        include-prerelease: false
+        global-json-file: global.json
 
     - name: Restore
       run: dotnet restore -p:Configuration=Release
