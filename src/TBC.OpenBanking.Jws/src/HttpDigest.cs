@@ -31,7 +31,7 @@ internal class HttpDigest
     private readonly HashAlgorithm hashAlgorithm;
     private readonly string digestPrefix;
 
-    internal static readonly List<(HashAlgorithmName AlgorithName, string Prefix)> supportedAlgorithms = new(2)
+    internal static readonly List<(HashAlgorithmName AlgorithName, string Prefix)> supportedAlgorithms = new(3)
     {
         (HashAlgorithmName.SHA256, "SHA-256"),
         (HashAlgorithmName.SHA384, "SHA-384"),
@@ -43,7 +43,24 @@ internal class HttpDigest
     internal HttpDigest(HashAlgorithmName hashAlgorithmName)
     {
         digestPrefix = GetDigestHeader(hashAlgorithmName);
-        hashAlgorithm = HashAlgorithm.Create(hashAlgorithmName.Name);
+
+        // HashAlgorithm.Create(name) is obsolete
+        if (hashAlgorithmName == HashAlgorithmName.SHA256)
+        {
+            hashAlgorithm = SHA256.Create();
+        }
+        else if (hashAlgorithmName == HashAlgorithmName.SHA384)
+        {
+            hashAlgorithm = SHA384.Create();
+        }
+        else if (hashAlgorithmName == HashAlgorithmName.SHA512)
+        {
+            hashAlgorithm = SHA512.Create();
+        }
+        else
+        {
+            throw new ArgumentOutOfRangeException(nameof(hashAlgorithmName), "Unsupported hash algorithm");
+        }
     }
 
     internal static HttpDigest CreateDigest(string digestString)
@@ -65,7 +82,7 @@ internal class HttpDigest
 
     private string GetDigestHeader(HashAlgorithmName hashAlgorithmName)
     {
-        var element = supportedAlgorithms.Find(x => x.AlgorithName.Name == hashAlgorithmName.Name);
+        var element = supportedAlgorithms.Find(x => x.AlgorithName == hashAlgorithmName);
         if (element == default)
             throw new ArgumentOutOfRangeException(nameof(hashAlgorithmName), "Unsupported hash algorithm");
 
@@ -86,7 +103,7 @@ internal class HttpDigest
         return $"{digestPrefix}={hashEncoded}";
     }
 
-#if NETCOREAPP2_1_OR_GREATER
+#if NETCOREAPP3_1_OR_GREATER
     internal string CalculateDigest(ReadOnlySpan<byte> body)
     {
         Span<byte> hash = stackalloc byte[hashAlgorithm.HashSize / 8];
