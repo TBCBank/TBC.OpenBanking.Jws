@@ -157,7 +157,7 @@ public sealed class JwsMessageHandler : DelegatingHandler
         {
             // This is ugly, but there's no better way (so far):
 
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
             httpData.Body = await request.Content!.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
 #else
             httpData.Body = await request.Content!.ReadAsByteArrayAsync().ConfigureAwait(false);
@@ -196,7 +196,7 @@ public sealed class JwsMessageHandler : DelegatingHandler
         {
             var httpData = new HttpResponseData
             {
-                StatusCode = ((uint)response.StatusCode).ToString(System.Globalization.CultureInfo.InvariantCulture)
+                StatusCode = ((uint)response.StatusCode).ToString(CultureInfo.InvariantCulture)
             };
 
             httpData.AppendHeaders(response.Headers, true);
@@ -207,7 +207,7 @@ public sealed class JwsMessageHandler : DelegatingHandler
 
                 // This is ugly, but there's no better way (so far):
 
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
                 httpData.Body = await response.Content!.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
 #else
                 httpData.Body = await response.Content!.ReadAsByteArrayAsync().ConfigureAwait(false);
@@ -228,7 +228,7 @@ public sealed class JwsMessageHandler : DelegatingHandler
         // Thumbprint is unique, it's a SHA1 hash
         if (cache!.TryGetValue<X509Certificate2Collection>(cert!.Thumbprint, out var collection))
         {
-            return collection;
+            return collection!;
         }
 
         collection = new X509Certificate2Collection();

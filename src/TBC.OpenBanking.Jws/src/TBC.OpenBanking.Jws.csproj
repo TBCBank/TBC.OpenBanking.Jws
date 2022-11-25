@@ -1,9 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;netcoreapp3.1;net6.0;net7.0</TargetFrameworks>
         <LangVersion>latest</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <IsPackable>true</IsPackable>
         <PackageId>TBC.OpenBanking.Jws</PackageId>
         <Title>TBC Open Banking JSON Web Signature</Title>
@@ -48,33 +49,32 @@
         <Using Include="System.Globalization.CultureInfo" Alias="CultureInfo" />
     </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
+    <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+        <PackageReference Include="MinVer" Version="4.2.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="MinVer" Version="3.1.0" Condition=" '$(Configuration)' == 'Release' ">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="System.Text.Json" Version="6.0.*" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.*" />
         <PackageReference Include="System.Buffers" Version="4.*" />
+        <PackageReference Include="System.Text.Json" Version="6.0.*" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.*" />
-    </ItemGroup>
-
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.*" />
+        <PackageReference Include="System.Text.Json" Version="6.0.*" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.*" />
+        <PackageReference Include="System.Text.Json" Version="6.0.*" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.*" />
+        <PackageReference Include="System.Text.Json" Version="7.0.*" />
     </ItemGroup>
 
     <ItemGroup Label="SourceLink">

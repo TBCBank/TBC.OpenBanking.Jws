@@ -30,7 +30,6 @@ using System.IO;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
-using CultureInfo = System.Globalization.CultureInfo;
 
 /// <summary>
 ///     Provides ability to have X.509 certificate URLs in options classes.
