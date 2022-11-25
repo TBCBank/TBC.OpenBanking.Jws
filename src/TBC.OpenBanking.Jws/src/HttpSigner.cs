@@ -28,6 +28,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 public class HttpSigner<T> where T : HttpMessageData
 {
@@ -36,7 +37,7 @@ public class HttpSigner<T> where T : HttpMessageData
 
     public HttpSigner(ILogger<HttpSigner<T>> logger)
     {
-        _logger = logger;
+        _logger = logger ?? NullLoggerFactory.Instance.CreateLogger<HttpSigner<T>>();
         DigestHashAlgorithmName = null;
 
         Reset();
@@ -84,9 +85,6 @@ public class HttpSigner<T> where T : HttpMessageData
     /// <returns>true if signature created without a problem</returns>
     public bool CreateSignature(T httpData)
     {
-        if (_logger != null && _logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug($"Call {nameof(CreateSignature)}");
-
         if (httpData == null) throw new ArgumentNullException(nameof(httpData));
         if (Signer == null) throw new InvalidOperationException($"Property not set '{nameof(Sign)}'");
         if (SignerCertificate == null) throw new InvalidOperationException($"Property not set '{nameof(SignerCertificate)}'");
@@ -111,8 +109,8 @@ public class HttpSigner<T> where T : HttpMessageData
 
         var payload = httpData.ComposeHeadersForSignature(protHeader.DataToBeSigned.Parameters, additionalHeaderValues);
 
-        if (_logger != null && _logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug("Payload: {Payload}", payload);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("CreateSignature payload: {Payload}", payload);
 
         var encodedSignature = Sign(encodedProtHeader, payload);
 

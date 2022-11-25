@@ -25,6 +25,7 @@ namespace TBC.OpenBanking.Jws;
 using System;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using TBC.OpenBanking.Jws.Exceptions;
 
 public class HttpSignatureVerifier<T> where T : HttpMessageData
@@ -34,7 +35,7 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
 
     public HttpSignatureVerifier(ILogger<HttpSignatureVerifier<T>> logger)
     {
-        _logger = logger;
+        _logger = logger ?? NullLoggerFactory.Instance.CreateLogger<HttpSignatureVerifier<T>>();
         InitData();
     }
 
@@ -62,9 +63,6 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
     /// <returns></returns>
     public bool VerifySignature(T httpData, DateTime checkTime)
     {
-        if (_logger != null && _logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug($"Start {nameof(VerifySignature)}");
-
         IsSignatureVerified = false;
 
         // Check headers. If any is missing throws exception
@@ -83,7 +81,7 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
         var jsonProtHeader = UTF8EncodingSealed.Instance.GetString(encodedProtectedHeader.DecodeBase64Url());
         ProtectedHeader = Helper.DeserializeFromJson<ProtectedHeader>(jsonProtHeader);
 
-        if (_logger != null && _logger.IsEnabled(LogLevel.Debug))
+        if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug("Incoming protected header: {JsonProtHeader}", jsonProtHeader);
 
         CheckProtectedHeader(ProtectedHeader);
@@ -120,8 +118,8 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
         // Compose payload
         var payload = httpData.ComposeHeadersForSignature(ProtectedHeader.DataToBeSigned.Parameters);
 
-        if (_logger != null && _logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug("Payload: {Payload}", payload);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("VerifySignature payload: {Payload}", payload);
 
         // Verify signature
         if (!VerifySignature(encodedProtectedHeader, payload, encodedSignature))
