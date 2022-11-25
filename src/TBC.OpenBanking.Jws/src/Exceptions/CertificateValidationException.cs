@@ -24,7 +24,6 @@ namespace TBC.OpenBanking.Jws.Exceptions;
 
 using System;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 
 [Serializable]
 public class CertificateValidationException : JwsException
@@ -44,18 +43,19 @@ public class CertificateValidationException : JwsException
 
         if (statuses != null)
         {
-            var sb = new StringBuilder();
-            sb.Append(message).Append(". ");
+            using var sb = new ValueStringBuilder(initialCapacity: 100);
+            sb.Append(message);
+            sb.Append(". ");
 
             int i = 0;
             foreach (var status in statuses)
             {
-                sb.Append(++i)
-                    .Append(". Status: ")
-                    .Append(status.Status.ToString())
-                    .Append(" Desc: ")
-                    .Append(status.StatusInformation)
-                    .Append("; ");
+                sb.Append((++i).ToString(CultureInfo.InvariantCulture));
+                sb.Append(". Status: ");
+                sb.Append(status.Status.ToString());
+                sb.Append(" Desc: ");
+                sb.Append(status.StatusInformation);
+                sb.Append("; ");
             }
 
             this.message = sb.ToString();

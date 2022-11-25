@@ -24,7 +24,6 @@ namespace TBC.OpenBanking.Jws;
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using TBC.OpenBanking.Jws.Exceptions;
 
 /// <summary>
@@ -33,12 +32,12 @@ using TBC.OpenBanking.Jws.Exceptions;
 public class HttpResponseData : HttpMessageData
 {
     /// <summary>
-    /// (response-status) represents status code
+    /// <c>(response-status)</c> represents status code
     /// </summary>
     public const string ResponseStatusHeaderName = "(response-status)";
 
     public readonly static IReadOnlyList<(string Name, HeaderNecessity Necessity)> NecessaryHeaders =
-        new List<(string, HeaderNecessity)>
+        new List<(string, HeaderNecessity)>(5)
         {
             (ResponseStatusHeaderName, HeaderNecessity.Mandatory),
             ("x-request-id", HeaderNecessity.Mandatory),
@@ -65,7 +64,7 @@ public class HttpResponseData : HttpMessageData
     {
         _ = headers ?? throw new ArgumentNullException(nameof(headers));
 
-        var sb = new StringBuilder();
+        using var sb = new ValueStringBuilder(initialCapacity: 512);
         foreach (var hn in headers)
         {
             if (sb.Length > 0)
@@ -73,9 +72,9 @@ public class HttpResponseData : HttpMessageData
 
             if (string.Equals(hn, ResponseStatusHeaderName, StringComparison.OrdinalIgnoreCase))
             {
-                sb.Append(hn)
-                    .Append(HttpMessageData.HeaderNameValueSeparator)
-                    .Append(StatusCode);
+                sb.Append(hn);
+                sb.Append(HttpMessageData.HeaderNameValueSeparator);
+                sb.Append(StatusCode);
             }
             else
             {
@@ -85,9 +84,9 @@ public class HttpResponseData : HttpMessageData
                     throw new HeaderMissingException($"Can't find header '{hn}'");
                 }
 
-                sb.Append(hn)
-                    .Append(HeaderNameValueSeparator)
-                    .Append(headerValue);
+                sb.Append(hn);
+                sb.Append(HeaderNameValueSeparator);
+                sb.Append(headerValue);
             }
         }
 

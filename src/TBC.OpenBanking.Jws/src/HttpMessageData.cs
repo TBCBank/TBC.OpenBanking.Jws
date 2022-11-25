@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
-using System.Text;
 
 /// <summary>
 /// Container for incoming or outgoing HTTP data.
@@ -109,7 +108,7 @@ public abstract class HttpMessageData
     {
         if (httpHeaders == null) throw new ArgumentNullException(nameof(httpHeaders));
 
-        var sb = new StringBuilder();
+        using var sb = new ValueStringBuilder(initialCapacity: 128);
         foreach (var header in httpHeaders)
         {
             string headerValue;
@@ -120,7 +119,6 @@ public abstract class HttpMessageData
                     if (!acceptMultivalue)
                         throw new ArgumentOutOfRangeException(nameof(httpHeaders), $"Header {header.Key} contains multiple values");
 
-                    sb.Clear();
                     foreach (var value in header.Value)
                     {
                         if (sb.Length != 0)
@@ -129,6 +127,7 @@ public abstract class HttpMessageData
                     }
 
                     headerValue = sb.ToString();
+                    sb.Dispose();  // Clear string builder to be reused in next iteration
                 }
                 else
                     headerValue = header.Value.First();

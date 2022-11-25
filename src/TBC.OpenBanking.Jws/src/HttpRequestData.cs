@@ -25,7 +25,6 @@ namespace TBC.OpenBanking.Jws;
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Text;
 using TBC.OpenBanking.Jws.Exceptions;
 
 /// <summary>
@@ -36,7 +35,7 @@ public class HttpRequestData : HttpMessageData
     public const string RequestTargetHeaderName = "(request-target)";
 
     public readonly static IReadOnlyList<(string Name, HeaderNecessity Necessity)> NecessaryHeaders =
-        new List<(string, HeaderNecessity)>
+        new List<(string, HeaderNecessity)>(6)
         {
             (RequestTargetHeaderName, HeaderNecessity.Mandatory),
             ("host", HeaderNecessity.Mandatory),
@@ -67,7 +66,7 @@ public class HttpRequestData : HttpMessageData
     /// <returns></returns>
     public override string ComposeHeadersForSignature(IList<string> headers, IDictionary<string, string> additionalHeaders = null)
     {
-        var sb = new StringBuilder();
+        using var sb = new ValueStringBuilder(initialCapacity: 512);
         foreach (var hn in headers)
         {
             if (sb.Length > 0)
@@ -75,11 +74,11 @@ public class HttpRequestData : HttpMessageData
 
             if (string.Equals(hn, RequestTargetHeaderName, StringComparison.OrdinalIgnoreCase))
             {
-                sb.Append(hn)
-                    .Append(HttpMessageData.HeaderNameValueSeparator)
-                    .Append(Method.ToLowerInvariant())
-                    .Append(' ')
-                    .Append(Uri.PathAndQuery);
+                sb.Append(hn);
+                sb.Append(HttpMessageData.HeaderNameValueSeparator);
+                sb.Append(Method.ToLowerInvariant());
+                sb.Append(' ');
+                sb.Append(Uri.PathAndQuery);
             }
             else
             {
@@ -89,9 +88,9 @@ public class HttpRequestData : HttpMessageData
                     throw new HeaderMissingException($"Can't find header '{hn}'");
                 }
 
-                sb.Append(hn)
-                    .Append(HttpMessageData.HeaderNameValueSeparator)
-                    .Append(headerValue);
+                sb.Append(hn);
+                sb.Append(HttpMessageData.HeaderNameValueSeparator);
+                sb.Append(headerValue);
             }
         }
 
