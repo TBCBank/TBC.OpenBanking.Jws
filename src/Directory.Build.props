@@ -1,15 +1,19 @@
 <Project>
     <PropertyGroup>
         <LangVersion>latest</LangVersion>
-        <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
-        <RestoreDisableParallel>true</RestoreDisableParallel>
+        <RestoreDisableParallel>false</RestoreDisableParallel>
+        <RestoreUseStaticGraphEvaluation>true</RestoreUseStaticGraphEvaluation>
+        <MSBuildCopyContentTransitively>true</MSBuildCopyContentTransitively>
+        <Features>strict</Features>
+        <AnalysisLevel>7</AnalysisLevel>
     </PropertyGroup>
-    <PropertyGroup Condition=" '$(TF_BUILD)' == 'true' or '$(GITHUB_ACTIONS)' == 'true' ">
+    <PropertyGroup Condition=" '$(TF_BUILD)' == 'True' or '$(GITHUB_ACTIONS)' == 'true' ">
         <!-- Same sources will produce same binaries: -->
         <Deterministic>true</Deterministic>
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
         <DisableImplicitAspNetCoreAnalyzers>true</DisableImplicitAspNetCoreAnalyzers>
         <DisableImplicitComponentsAnalyzers>true</DisableImplicitComponentsAnalyzers>
+        <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
         <EnableNETAnalyzers>false</EnableNETAnalyzers>
     </PropertyGroup>
     <!-- Include Local.Build.props file that contains settings specific to developer's machine: -->
