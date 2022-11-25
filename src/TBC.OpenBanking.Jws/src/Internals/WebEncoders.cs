@@ -341,8 +341,13 @@ internal static class WebEncoders
     /// </summary>
     /// <param name="input">The binary input to encode.</param>
     /// <returns>The base64url-encoded form of <paramref name="input"/>.</returns>
+#if NET6_0_OR_GREATER
+    [System.Runtime.CompilerServices.SkipLocalsInit]
+#endif
     public static string Base64UrlEncode(ReadOnlySpan<byte> input)
     {
+        const int StackAllocThreshold = 128;
+
         if (input.IsEmpty)
         {
             return string.Empty;
@@ -351,8 +356,8 @@ internal static class WebEncoders
         int bufferSize = GetArraySizeRequiredToEncode(input.Length);
 
         char[]? bufferToReturnToPool = null;
-        Span<char> buffer = bufferSize <= 128
-            ? stackalloc char[bufferSize]
+        Span<char> buffer = bufferSize <= StackAllocThreshold
+            ? stackalloc char[StackAllocThreshold]
             : bufferToReturnToPool = ArrayPool<char>.Shared.Rent(bufferSize);
 
         var numBase64Chars = Base64UrlEncode(input, buffer);
