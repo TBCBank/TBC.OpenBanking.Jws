@@ -10,3 +10,5 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "Reviewed", Scope = "module")]
 [assembly: SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Reviewed", Scope = "module")]
 [assembly: SuppressMessage("Performance", "CA1848:Use the LoggerMessage delegates", Justification = "Reviewed", Scope = "module")]
+[assembly: SuppressMessage("Design", "MA0026:Fix TODO comment", Justification = "Reviewed", Scope = "module")]
+[assembly: SuppressMessage("Design", "MA0051:Method is too long", Justification = "Reviewed", Scope = "module")]

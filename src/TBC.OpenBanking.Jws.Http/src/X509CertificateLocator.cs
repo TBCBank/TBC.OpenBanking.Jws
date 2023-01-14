@@ -199,7 +199,7 @@ public sealed class X509CertificateLocator : IDisposable
             var storeLocation = Enum.Parse<StoreLocation>(WebUtility.UrlDecode(_uri.Segments[1].Trim(TrimSlashes).Trim()), true);
             using var store = new X509Store(storeName, storeLocation, OpenFlags.OpenExistingOnly | OpenFlags.ReadOnly);
 #else
-            var storeLocation = (StoreLocation)Enum.Parse(typeof(StoreLocation), WebUtility.UrlDecode(_uri.Segments[1].Trim(TrimSlashes).Trim()), true);
+            var storeLocation = (StoreLocation)Enum.Parse(typeof(StoreLocation), WebUtility.UrlDecode(_uri.Segments[1].Trim(TrimSlashes).Trim()), ignoreCase: true);
             using var store = new X509Store(storeName, storeLocation);
             store.Open(OpenFlags.OpenExistingOnly | OpenFlags.ReadOnly);
 #endif

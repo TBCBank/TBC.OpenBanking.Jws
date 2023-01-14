@@ -43,16 +43,16 @@ public class ProtectedHeader
         [JsonPropertyName("mId")]
         public string IdentificationMechanism { get; set; } = "http://uri.etsi.org/19182/HttpHeaders";
 
+        [SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "Intentional")]
         public void AddParameter(string value)
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
 
             if (value.Length != 0)
             {
-                value = value.ToLowerInvariant();
                 // Preventing duplication
-                if (!Parameters.Contains(value))
-                    Parameters.Add(value);
+                if (!Parameters.Contains(value, StringComparer.OrdinalIgnoreCase))
+                    Parameters.Add(value.ToLowerInvariant());
             }
         }
     }

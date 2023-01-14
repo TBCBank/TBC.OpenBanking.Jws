@@ -64,8 +64,11 @@ public class HttpRequestData : HttpMessageData
     /// Special header name "(request-target)" is also acceptable and will be processed accordingly.</param>
     /// <param name="additionalHeaders">Additional header name-values</param>
     /// <returns></returns>
+    [SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "Intentional")]
     public override string ComposeHeadersForSignature(IList<string> headers, IDictionary<string, string> additionalHeaders = null)
     {
+        _ = headers ?? throw new ArgumentNullException(nameof(headers));
+
         using var sb = new ValueStringBuilder(initialCapacity: 512);
         foreach (var hn in headers)
         {
@@ -165,6 +168,7 @@ public class HttpRequestData : HttpMessageData
         }
     }
 
+    [SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "Intentional")]
     public override List<string> GetHeaderNamesForSignature()
     {
         var headersList = new List<string>(NecessaryHeaders.Count);

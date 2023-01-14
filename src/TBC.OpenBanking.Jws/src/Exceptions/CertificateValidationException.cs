@@ -23,6 +23,7 @@
 namespace TBC.OpenBanking.Jws.Exceptions;
 
 using System;
+using System.Runtime.Serialization;
 using System.Security.Cryptography.X509Certificates;
 
 [Serializable]
@@ -35,6 +36,7 @@ public class CertificateValidationException : JwsException
         : base(message)
     {
         this.SetHResult(ErrorCode);
+        this.message = message;
     }
 
     public CertificateValidationException(X509ChainStatus[] statuses, string message)
@@ -70,10 +72,34 @@ public class CertificateValidationException : JwsException
         : base(message, innerException)
     {
         this.SetHResult(ErrorCode);
+        this.message = message;
     }
 
     public CertificateValidationException()
     {
         this.SetHResult(ErrorCode);
+    }
+
+    protected CertificateValidationException(SerializationInfo info, StreamingContext context)
+        : base(info, context)
+    {
+        if (info == null)
+        {
+            throw new ArgumentNullException(nameof(info));
+        }
+
+        this.message = info.GetString("message2");
+        this.SetHResult(ErrorCode);
+    }
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+        if (info == null)
+        {
+            throw new ArgumentNullException(nameof(info));
+        }
+
+        info.AddValue("message2", this.message, typeof(string));
+        base.GetObjectData(info, context);
     }
 }

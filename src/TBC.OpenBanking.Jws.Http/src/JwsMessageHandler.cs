@@ -48,6 +48,7 @@ using TBC.OpenBanking.Jws.Exceptions;
 public sealed class JwsMessageHandler : DelegatingHandler
 {
     private readonly IOptions<JwsClientOptions> jwsOptions;
+    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "This class does not own this certificate")]
     private readonly X509Certificate2? signerCertificate;
 
     private readonly HttpSigner<HttpRequestData>? reqSign;
@@ -113,7 +114,7 @@ public sealed class JwsMessageHandler : DelegatingHandler
                     RevocationMode = this.jwsOptions.Value.CheckCertificateRevocationList
                         ? X509RevocationMode.Online
                         : X509RevocationMode.NoCheck,
-                }
+                },
             };
         }
     }
@@ -151,7 +152,7 @@ public sealed class JwsMessageHandler : DelegatingHandler
             httpData.AddHeader("Host", httpData.Uri!.DnsSafeHost);
         }
 
-        httpData.AppendHeaders(request.Headers, true);
+        httpData.AppendHeaders(request.Headers, acceptMultivalue: true);
 
         if (request.Content is not null)
         {
@@ -163,7 +164,7 @@ public sealed class JwsMessageHandler : DelegatingHandler
             httpData.Body = await request.Content!.ReadAsByteArrayAsync().ConfigureAwait(false);
 #endif
 
-            httpData.AppendHeaders(request.Content!.Headers, true);
+            httpData.AppendHeaders(request.Content!.Headers, acceptMultivalue: true);
         }
 
         if (this.reqSign!.CreateSignature(httpData))
@@ -196,14 +197,14 @@ public sealed class JwsMessageHandler : DelegatingHandler
         {
             var httpData = new HttpResponseData
             {
-                StatusCode = ((uint)response.StatusCode).ToString(CultureInfo.InvariantCulture)
+                StatusCode = ((uint)response.StatusCode).ToString(CultureInfo.InvariantCulture),
             };
 
-            httpData.AppendHeaders(response.Headers, true);
+            httpData.AppendHeaders(response.Headers, acceptMultivalue: true);
 
             if (response.Content != null)
             {
-                httpData.AppendHeaders(response.Content!.Headers, true);
+                httpData.AppendHeaders(response.Content!.Headers, acceptMultivalue: true);
 
                 // This is ugly, but there's no better way (so far):
 

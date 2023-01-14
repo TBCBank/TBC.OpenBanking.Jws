@@ -93,6 +93,7 @@ public class HttpResponseData : HttpMessageData
         return sb.ToString();
     }
 
+    [SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "Intentional")]
     public override List<string> GetHeaderNamesForSignature()
     {
         var headersList = new List<string>(NecessaryHeaders.Count);

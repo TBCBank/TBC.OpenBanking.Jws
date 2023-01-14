@@ -73,7 +73,7 @@ internal class HttpDigest
             throw new ArgumentOutOfRangeException(nameof(digestString), "Bad format of digest string. Can't find algorithm prefix");
 
         var algName = digestString.Substring(0, dividerIndex).Trim();
-        var element = supportedAlgorithms.Find(x => x.Prefix == algName);
+        var element = supportedAlgorithms.Find(x => string.Equals(x.Prefix, algName, StringComparison.Ordinal));
         if (element == default)
             throw new ArgumentOutOfRangeException(nameof(digestString), "Unsupported hash algorithm");
 

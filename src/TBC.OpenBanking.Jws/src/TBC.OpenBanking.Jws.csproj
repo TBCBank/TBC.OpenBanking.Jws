@@ -46,7 +46,19 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Using Include="System.Diagnostics.CodeAnalysis" />
         <Using Include="System.Globalization.CultureInfo" Alias="CultureInfo" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Meziantou.Analyzer" Version="2.0.*">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="4.*">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
     <ItemGroup Condition=" '$(Configuration)' == 'Release' ">

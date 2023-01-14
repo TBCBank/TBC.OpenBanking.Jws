@@ -63,6 +63,8 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
     /// <returns></returns>
     public bool VerifySignature(T httpData, DateTime checkTime)
     {
+        _ = httpData ?? throw new ArgumentNullException(nameof(httpData));
+
         IsSignatureVerified = false;
 
         // Check headers. If any is missing throws exception
