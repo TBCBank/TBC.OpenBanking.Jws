@@ -6,6 +6,9 @@
         <MSBuildCopyContentTransitively>true</MSBuildCopyContentTransitively>
         <Features>strict</Features>
         <AnalysisLevel>7</AnalysisLevel>
+        <Deterministic>false</Deterministic>
+        <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+        <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(TF_BUILD)' == 'True' or '$(GITHUB_ACTIONS)' == 'true' ">
         <!-- Same sources will produce same binaries: -->
