@@ -33,7 +33,7 @@ internal ref struct ValueStringBuilder
 
     /// <summary>
     ///    Initializes a new <see cref="ValueStringBuilder"/> with a buffer taken
-    ///    from the <see cref="ArrayPool{char}"/>.
+    ///    from the <see cref="ArrayPool{T}"/>.
     /// </summary>
     public ValueStringBuilder(int initialCapacity)
     {
