@@ -33,4 +33,8 @@ internal sealed class UTF8EncodingSealed : UTF8Encoding
     public UTF8EncodingSealed() : base(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true) { }
 
     public override byte[] GetPreamble() => Array.Empty<byte>();
+
+#if NET5_0_OR_GREATER
+    public override ReadOnlySpan<byte> Preamble => ReadOnlySpan<byte>.Empty;
+#endif
 }
