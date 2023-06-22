@@ -120,7 +120,7 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
 
         // Check and compare signing certificate organization identifier to clint certificate 
         if(httpData is HttpRequestData)
-            CheckOrganizationIdentifier(httpData);
+            CheckOrganizationIdentifier(ProtectedHeader, httpData);
 
         // Compose payload
         var payload = httpData.ComposeHeadersForSignature(ProtectedHeader.DataToBeSigned.Parameters);
@@ -193,13 +193,17 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
         data.CheckMandatoryHeaders();
     }
 
-    private void CheckOrganizationIdentifier(T data)
+    private void CheckOrganizationIdentifier(ProtectedHeader protHeader, T data)
     {
-        var subjects = _signerCertificate.Subject.Split(',');
+        var cert = protHeader.DecodeCertificate(protHeader.EncodedCertificates[0]);
+
+        _logger.LogInformation("Signing Certificate subject: {Cert.Subject}", cert.Subject);
+
+        var subjects = cert.Subject.Split(',');
 
         var oidString = subjects.FirstOrDefault(x => x.Contains(HttpMessageData.OidSubjectName));
 
-        _logger.LogInformation("Signing Certificate Organization identifier: {OidString}", oidString);
+        _logger.LogInformation("Signing Certificate Organization identifier {HttpMessageData.OidSubjectName}: {OidString}", HttpMessageData.OidSubjectName, oidString);
 
         if (oidString == null)
             throw new CertificateValidationException("The organization identifier is missing in signing certificate");
