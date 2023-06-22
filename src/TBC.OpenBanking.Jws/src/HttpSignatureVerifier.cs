@@ -197,13 +197,18 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
     {
         var cert = protHeader.DecodeCertificate(protHeader.EncodedCertificates[0]);
 
-        _logger.LogInformation("Signing Certificate subject: {Cert.Subject}", cert.Subject);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Incoming certificate: {Cert}", cert);
 
         var subjects = cert.Subject.Split(',');
 
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Incoming subjects: {Subject}", cert.Subject);
+
         var oidString = subjects.FirstOrDefault(x => x.Contains(HttpMessageData.OidSubjectName));
 
-        _logger.LogInformation("Signing Certificate Organization identifier {HttpMessageData.OidSubjectName}: {OidString}", HttpMessageData.OidSubjectName, oidString);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Signing Certificate Organization identifier {OidSubjectName}: {OidString}", HttpMessageData.OidSubjectName, oidString);
 
         if (oidString == null)
             throw new CertificateValidationException("The organization identifier is missing in signing certificate");
@@ -217,7 +222,8 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
 
         var oidFromHeader = data.Headers[HttpMessageData.OrganizationIdentifier];
 
-        _logger.LogInformation("Client Certificate Organization identifier: {OidFromHeader}", oidFromHeader);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Client Certificate Organization identifier: {OidFromHeader}", oidFromHeader);
 
         if (string.IsNullOrEmpty(oidFromHeader))
             throw new HeaderMissingException("The organization identifier headers from client's certificate is missing");
