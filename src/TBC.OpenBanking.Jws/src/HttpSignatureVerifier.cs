@@ -205,10 +205,20 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug("Incoming subjects: {Subject}", cert.Subject);
 
-        var oidString = subjects.FirstOrDefault(x => x.Contains(HttpMessageData.OidSubjectName));
+        string oidString = null;
 
-        if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug("Signing Certificate Organization identifier {OidSubjectName}: {OidString}", HttpMessageData.OidSubjectName, oidString);
+        foreach (var oidSubjectName in HttpMessageData.OidSubjectNames)
+        {
+            oidString = subjects.FirstOrDefault(x => x.Contains(oidSubjectName));
+
+            if(oidString != null)
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                    _logger.LogDebug("Signing Certificate Organization identifier {OidSubjectName}: {OidString}", oidSubjectName, oidString);
+
+                break;
+            }
+        }
 
         if (oidString == null)
             throw new CertificateValidationException("The organization identifier is missing in signing certificate");

@@ -75,7 +75,7 @@ public abstract class HttpMessageData
 
     internal readonly static byte[] EmptyBody = Array.Empty<byte>();
 
-    internal const string OidSubjectName = "2.5.4.97";
+    internal readonly static string[] OidSubjectNames = { "2.5.4.97", "OID.2.5.4.97", "OID", "organizationIdentifier" };
 
     /// <summary>
     /// Gets or sets the HTTP body.
