@@ -199,6 +199,8 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
 
         var oidString = subjects.FirstOrDefault(x => x.Contains(HttpMessageData.OidSubjectName));
 
+        _logger.LogInformation("Signing Certificate Organization identifier: {OidString}", oidString);
+
         if (oidString == null)
             throw new CertificateValidationException("The organization identifier is missing in signing certificate");
 
@@ -210,6 +212,8 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
             throw new HeaderMissingException($"Header '{HttpMessageData.OrganizationIdentifier}' is missing");
 
         var oidFromHeader = data.Headers[HttpMessageData.OrganizationIdentifier];
+
+        _logger.LogInformation("Client Certificate Organization identifier: {OidFromHeader}", oidFromHeader);
 
         if (string.IsNullOrEmpty(oidFromHeader))
             throw new HeaderMissingException("The organization identifier headers from client's certificate is missing");
