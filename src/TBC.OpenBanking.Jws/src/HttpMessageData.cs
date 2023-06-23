@@ -66,6 +66,7 @@ public abstract class HttpMessageData
 
     public const string DigestHeadertName = "digest";
     public const string SignatureHeaderName = "x-jws-signature";
+    public const string OrganizationIdentifier = "x-organization-id";
 
     internal const string PsuPrefix = "psu-";
 
@@ -73,6 +74,8 @@ public abstract class HttpMessageData
     internal readonly static string[] SignatureSplitter = { SignatureSeparator };
 
     internal readonly static byte[] EmptyBody = Array.Empty<byte>();
+
+    internal readonly static string[] OidSubjectNames = { "2.5.4.97", "OID.2.5.4.97", "organizationIdentifier" };
 
     /// <summary>
     /// Gets or sets the HTTP body.

@@ -23,6 +23,7 @@
 namespace TBC.OpenBanking.Jws;
 
 using System;
+using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -117,6 +118,10 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
         // Check certificate: get certificate(s) from protected header and try to build certificate chain
         CreateCertificatesChain(ProtectedHeader);
 
+        // Check and compare signing certificate organization identifier to clint certificate 
+        if(httpData is HttpRequestData)
+            CheckOrganizationIdentifier(ProtectedHeader, httpData);
+
         // Compose payload
         var payload = httpData.ComposeHeadersForSignature(ProtectedHeader.DataToBeSigned.Parameters);
 
@@ -186,5 +191,54 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
             throw new HeaderMissingException($"Mandatory header '{HttpMessageData.SignatureHeaderName}' is missing");
 
         data.CheckMandatoryHeaders();
+    }
+
+    private void CheckOrganizationIdentifier(ProtectedHeader protHeader, T data)
+    {
+        var cert = protHeader.DecodeCertificate(protHeader.EncodedCertificates[0]);
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Incoming certificate: {Cert}", cert);
+
+        var subjects = cert.Subject.Split(',');
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Incoming subjects: {Subject}", cert.Subject);
+
+        string oidString = null;
+
+        foreach (var oidSubjectName in HttpMessageData.OidSubjectNames)
+        {
+            oidString = subjects.FirstOrDefault(x => x.Contains(oidSubjectName));
+
+            if(oidString != null)
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                    _logger.LogDebug("Signing Certificate Organization identifier {OidSubjectName}: {OidString}", oidSubjectName, oidString);
+
+                break;
+            }
+        }
+
+        if (oidString == null)
+            throw new CertificateValidationException("The organization identifier is missing in signing certificate");
+
+        var oid = oidString.Split('=');
+        if (oid.Length != 2)
+            throw new CertificateValidationException("Invalid Organization identifier");
+
+        if (!data.Headers.ContainsKey(HttpMessageData.OrganizationIdentifier))
+            throw new HeaderMissingException($"Header '{HttpMessageData.OrganizationIdentifier}' is missing");
+
+        var oidFromHeader = data.Headers[HttpMessageData.OrganizationIdentifier];
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Client Certificate Organization identifier: {OidFromHeader}", oidFromHeader);
+
+        if (string.IsNullOrEmpty(oidFromHeader))
+            throw new HeaderMissingException("The organization identifier headers from client's certificate is missing");
+
+        if (!string.Equals(oid[1], oidFromHeader, StringComparison.Ordinal))
+            throw new CertificateValidationException("The organization identifiers in signing certificate and client certificate does not match each other");
     }
 }
