@@ -32,7 +32,7 @@
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>1701;1702;1591</NoWarn>
+        <NoWarn>$(NoWarn);1701;1702;1591</NoWarn>
         <WarningsAsErrors>NU1605</WarningsAsErrors>
     </PropertyGroup>
 
