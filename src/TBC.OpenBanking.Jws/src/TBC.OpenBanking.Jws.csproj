@@ -25,7 +25,11 @@
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <DebugType>embedded</DebugType>
+        <EnablePackageValidation>true</EnablePackageValidation>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <EnableAotAnalyzer>true</EnableAotAnalyzer>
+        <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
+        <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
         <AnalysisLevel>latest-all</AnalysisLevel>
     </PropertyGroup>
 
