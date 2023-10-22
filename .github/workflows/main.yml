@@ -32,7 +32,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 1
 
@@ -45,8 +45,7 @@ jobs:
       run: dotnet restore -p:Configuration=Release
 
     - name: Build
-      run: |
-        dotnet build -c Release --no-restore -p:SourceRevisionId=$(git rev-parse --short $GITHUB_SHA)
+      run: dotnet build -c Release --no-restore -p:SourceRevisionId=$(git rev-parse --short $GITHUB_SHA)
 
     # There are no tests yet.
     #- name: Test
