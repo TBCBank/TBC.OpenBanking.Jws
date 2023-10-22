@@ -407,22 +407,6 @@ internal static class WebEncoders
     }
 #endif
 
-    private static int GetNumBase64PaddingCharsInString(string str)
-    {
-        // Assumption: input contains a well-formed base64 string with no whitespace.
-
-        // base64 guaranteed have 0 - 2 padding characters.
-        if (str[str.Length - 1] == '=')
-        {
-            if (str[str.Length - 2] == '=')
-            {
-                return 2;
-            }
-            return 1;
-        }
-        return 0;
-    }
-
     private static int GetNumBase64PaddingCharsToAddForDecode(int inputLength)
     {
         return (inputLength % 4) switch
@@ -463,8 +447,6 @@ internal static class WebEncoders
         }
     }
 
-    // TODO using a resx file. project.json, unfortunately, fails to embed resx files when there are also compile items
-    // in the contentFiles section. Revisit once we convert repos to MSBuild
     internal static class EncoderResources
     {
         /// <summary>
