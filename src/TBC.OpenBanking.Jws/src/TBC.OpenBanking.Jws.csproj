@@ -89,7 +89,7 @@
     </ItemGroup>
 
     <ItemGroup Label="SourceLink">
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" Condition=" '$(Configuration)|$(GITHUB_ACTIONS)' == 'Release|true' ">
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" Condition=" '$(Configuration)|$(GITHUB_ACTIONS)' == 'Release|true' ">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
