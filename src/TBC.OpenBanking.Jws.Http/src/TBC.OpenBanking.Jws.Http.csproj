@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;net6.0;net8.0</TargetFrameworks>
         <LangVersion>latest</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <IsPackable>true</IsPackable>
@@ -65,7 +65,7 @@
     </ItemGroup>
 
     <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
-        <PackageReference Include="MinVer" Version="4.3.0">
+        <PackageReference Include="MinVer" Version="4.3.*">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -81,17 +81,17 @@
         <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.*" />
     </ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
-        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="7.0.*" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.*" />
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.*" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.*" />
     </ItemGroup>
 
     <ItemGroup Label="SourceLink">
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" Condition=" '$(Configuration)|$(GITHUB_ACTIONS)' == 'Release|true' ">
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.*" Condition=" '$(Configuration)|$(GITHUB_ACTIONS)' == 'Release|true' ">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.SourceLink.AzureDevOpsServer.Git" Version="1.1.1" Condition=" '$(Configuration)|$(TF_BUILD)' == 'Release|True' ">
+        <PackageReference Include="Microsoft.SourceLink.AzureDevOpsServer.Git" Version="8.0.*" Condition=" '$(Configuration)|$(TF_BUILD)' == 'Release|True' ">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
