@@ -27,7 +27,6 @@
         <DebugType>embedded</DebugType>
         <EnablePackageValidation>true</EnablePackageValidation>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
-        <EnableAotAnalyzer>true</EnableAotAnalyzer>
         <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
         <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
         <AnalysisLevel>latest-all</AnalysisLevel>
@@ -38,6 +37,10 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);1701;1702;1591</NoWarn>
         <WarningsAsErrors>NU1605</WarningsAsErrors>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0')) ">
+        <EnableAotAnalyzer>true</EnableAotAnalyzer>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(TF_BUILD)' == 'True' or '$(GITHUB_ACTIONS)' == 'true' ">
