@@ -23,7 +23,6 @@
 namespace TBC.OpenBanking.Jws;
 
 using System;
-using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -118,8 +117,8 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
         // Check certificate: get certificate(s) from protected header and try to build certificate chain
         CreateCertificatesChain(ProtectedHeader);
 
-        // Check and compare signing certificate organization identifier to clint certificate 
-        if(httpData is HttpRequestData)
+        // Check and compare signing certificate organization identifier to clint certificate
+        if (httpData is HttpRequestData)
             CheckOrganizationIdentifier(ProtectedHeader, httpData);
 
         // Compose payload
@@ -162,11 +161,11 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
         {
             foreach (var cert in protHeader.EncodedCertificates)
             {
-                chain.ChainPolicy.ExtraStore.Add(protHeader.DecodeCertificate(cert));
+                _ = chain.ChainPolicy.ExtraStore.Add(protHeader.DecodeCertificate(cert));
             }
         }
 
-        chain.Build(_signerCertificate);
+        _ = chain.Build(_signerCertificate);
 
         foreach (var status in chain.ChainStatus)
         {
@@ -195,7 +194,7 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
 
     private void CheckOrganizationIdentifier(ProtectedHeader protHeader, T data)
     {
-        var cert = protHeader.DecodeCertificate(protHeader.EncodedCertificates[0]);
+        using var cert = protHeader.DecodeCertificate(protHeader.EncodedCertificates[0]);
 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug("Incoming certificate: {Cert}", cert);
@@ -211,7 +210,7 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
         {
             oidString = subjects.FirstOrDefault(x => x.Contains(oidSubjectName));
 
-            if(oidString != null)
+            if (oidString != null)
             {
                 if (_logger.IsEnabled(LogLevel.Debug))
                     _logger.LogDebug("Signing Certificate Organization identifier {OidSubjectName}: {OidString}", oidSubjectName, oidString);
@@ -227,10 +226,8 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
         if (oid.Length != 2)
             throw new CertificateValidationException("Invalid Organization identifier");
 
-        if (!data.Headers.ContainsKey(HttpMessageData.OrganizationIdentifier))
+        if (!data.Headers.TryGetValue(HttpMessageData.OrganizationIdentifier, out string oidFromHeader))
             throw new HeaderMissingException($"Header '{HttpMessageData.OrganizationIdentifier}' is missing");
-
-        var oidFromHeader = data.Headers[HttpMessageData.OrganizationIdentifier];
 
         if (_logger.IsEnabled(LogLevel.Debug))
             _logger.LogDebug("Client Certificate Organization identifier: {OidFromHeader}", oidFromHeader);

@@ -80,7 +80,7 @@ public sealed class JwsMessageHandler : DelegatingHandler
         this.jwsOptions = options;
 
         this.doNotSign = options.Value.SigningCertificate is null;
-        this.doNotValidate = options.Value.ValidateSignature is false;
+        this.doNotValidate = !options.Value.ValidateSignature;
 
         if (!this.doNotSign)
         {
@@ -193,7 +193,7 @@ public sealed class JwsMessageHandler : DelegatingHandler
         // WARNING: Temporary workaround: only validate responses with 2xx status codes
         // TODO: Maybe a better way is to check for signature header existence?
         int statusCode = (int)response.StatusCode;
-        if (statusCode < 300 || statusCode >= 400)
+        if (statusCode is < 300 or >= 400)
         {
             var httpData = new HttpResponseData
             {
@@ -232,7 +232,7 @@ public sealed class JwsMessageHandler : DelegatingHandler
             return collection!;
         }
 
-        collection = new X509Certificate2Collection();
+        collection = [];
 
         using (var chain = new X509Chain())
         {
@@ -244,7 +244,7 @@ public sealed class JwsMessageHandler : DelegatingHandler
                 VerificationFlags = X509VerificationFlags.AllFlags,
             };
 
-            chain.Build(cert);
+            _ = chain.Build(cert);
 
             foreach (var status in chain.ChainStatus)
             {
@@ -262,7 +262,7 @@ public sealed class JwsMessageHandler : DelegatingHandler
                 if (index == 1 || index == chain.ChainElements.Count)
                     continue;
 
-                collection.Add(element.Certificate);
+                _ = collection.Add(element.Certificate);
             }
         }
 
@@ -274,7 +274,7 @@ public sealed class JwsMessageHandler : DelegatingHandler
             // (Does not have to be an actual size, just a guess is sufficient)
             .SetSize(5000L);
 
-        cache.Set<X509Certificate2Collection>(cert.Thumbprint, collection, entryOptions);
+        _ = cache.Set<X509Certificate2Collection>(cert.Thumbprint, collection, entryOptions);
 
         return collection;
     }

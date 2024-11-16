@@ -64,7 +64,7 @@ internal static class WebEncoders
         // Special-case empty input
         if (count == 0)
         {
-            return Array.Empty<byte>();
+            return [];
         }
 
         // Create array large enough for the Base64 characters, not just shorter Base64-URL-encoded form.
@@ -112,7 +112,7 @@ internal static class WebEncoders
 
         if (count == 0)
         {
-            return Array.Empty<byte>();
+            return [];
         }
 
         // Assumption: input is base64url encoded without padding and contains no whitespace.
@@ -382,7 +382,7 @@ internal static class WebEncoders
 
         // Use base64url encoding with no padding characters. See RFC 4648, Sec. 5.
 
-        Convert.TryToBase64Chars(input, output, out int charsWritten);
+        _ = Convert.TryToBase64Chars(input, output, out int charsWritten);
 
         // Fix up '+' -> '-' and '/' -> '_'. Drop padding characters.
         for (var i = 0; i < charsWritten; i++)

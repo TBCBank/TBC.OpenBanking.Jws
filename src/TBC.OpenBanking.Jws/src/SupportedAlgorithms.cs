@@ -93,7 +93,7 @@ public static class SupportedAlgorithms
         [EcdsaSha512] = static cert => new AlgorithmEcdsa(cert, HashAlgorithmName.SHA512),
     };
 
-    static public bool IsSupportedAlgorithm(string alg) => supportedAlgorithms.ContainsKey(alg);
+    public static bool IsSupportedAlgorithm(string alg) => supportedAlgorithms.ContainsKey(alg);
 
     /// <summary>
     ///
@@ -101,7 +101,7 @@ public static class SupportedAlgorithms
     /// <param name="cert">Certificate with private key</param>
     /// <param name="alg"></param>
     /// <returns></returns>
-    static public ISigner CreateSigner(X509Certificate2 cert, string alg)
+    public static ISigner CreateSigner(X509Certificate2 cert, string alg)
     {
         _ = cert ?? throw new ArgumentNullException(nameof(cert));
 
@@ -122,7 +122,7 @@ public static class SupportedAlgorithms
     /// <param name="cert">Certificate with public key</param>
     /// <param name="alg"></param>
     /// <returns></returns>
-    static public Algorithm CreateVerifier(X509Certificate2 cert, string alg)
+    public static Algorithm CreateVerifier(X509Certificate2 cert, string alg)
     {
         if (!supportedAlgorithms.TryGetValue(alg, out var creator))
         {

@@ -71,11 +71,11 @@ public abstract class HttpMessageData
     internal const string PsuPrefix = "psu-";
 
     internal const string SignatureSeparator = "..";
-    internal readonly static string[] SignatureSplitter = { SignatureSeparator };
+    internal static readonly string[] SignatureSplitter = [SignatureSeparator];
 
-    internal readonly static byte[] EmptyBody = Array.Empty<byte>();
+    internal static readonly byte[] EmptyBody = [];
 
-    internal readonly static string[] OidSubjectNames = { "2.5.4.97", "OID.2.5.4.97", "organizationIdentifier" };
+    internal static readonly string[] OidSubjectNames = ["2.5.4.97", "OID.2.5.4.97", "organizationIdentifier"];
 
     /// <summary>
     /// Gets or sets the HTTP body.

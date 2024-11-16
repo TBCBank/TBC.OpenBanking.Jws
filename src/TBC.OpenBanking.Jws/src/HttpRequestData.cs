@@ -34,7 +34,7 @@ public class HttpRequestData : HttpMessageData
 {
     public const string RequestTargetHeaderName = "(request-target)";
 
-    public readonly static IReadOnlyList<(string Name, HeaderNecessity Necessity)> NecessaryHeaders =
+    public static readonly IReadOnlyList<(string Name, HeaderNecessity Necessity)> NecessaryHeaders =
         new List<(string, HeaderNecessity)>(6)
         {
             (RequestTargetHeaderName, HeaderNecessity.Mandatory),
@@ -202,7 +202,7 @@ public class HttpRequestData : HttpMessageData
 
         // Add PSU* headers
         headersList.AddRange((from hn in Headers.Keys
-                              where hn.IndexOf(PsuPrefix, StringComparison.OrdinalIgnoreCase) == 0
+                              where hn.StartsWith(PsuPrefix, StringComparison.OrdinalIgnoreCase)
                               select hn).ToList());
 
         return headersList;

@@ -22,6 +22,8 @@
 
 namespace TBC.OpenBanking.Jws;
 
+#pragma warning disable CA1054, CA1055
+
 /// <summary>
 /// Implementation of <see href="https://datatracker.ietf.org/doc/html/rfc4648#section-5"/>.
 /// </summary>

@@ -27,7 +27,7 @@ public static class JwsConstants
     public enum HeadersNecessity
     {
         Mandatory,
-        IfExists
+        IfExists,
     }
 
     /// <summary>
@@ -55,7 +55,7 @@ public static class JwsConstants
     internal const string HeaderTerminatorInPayload = "\n";
 
     internal const string SignatureSeparator = "..";
-    internal readonly static string[] SignatureSplitter = { SignatureSeparator };
+    internal static readonly string[] SignatureSplitter = [SignatureSeparator];
 
     internal const string PsuPrefix = "psu-";
 

@@ -43,7 +43,10 @@ using System.Security.Cryptography.X509Certificates;
 public sealed class X509CertificateLocator : IDisposable
 {
     private static volatile uint IsRegistered;
-    private static readonly char[] TrimSlashes = new[] { '\\', '/' };
+    private static readonly char[] TrimSlashes = ['\\', '/'];
+#if !NET
+    private static readonly char[] TrimColons = [':'];
+#endif
 
     private const string CertScheme = "cert";
     private const string PfxScheme = "pfx";
@@ -89,8 +92,6 @@ public sealed class X509CertificateLocator : IDisposable
         }
 
         _uri = uri;
-
-        // TODO: Move more validations here from GetCertificate() method
 
         if (_isPfxFile)
         {
@@ -160,17 +161,17 @@ public sealed class X509CertificateLocator : IDisposable
                 userInfo = WebUtility.UrlDecode(userInfo);
                 string? password;
 
-#if NETCOREAPP3_1_OR_GREATER
+#if NET
                 if (userInfo.Contains(':', StringComparison.Ordinal))
 #else
                 if (userInfo.Contains(":"))
 #endif
                 {
                     // 2nd element is the password
-#if (!NETSTANDARD2_0 && !NETFRAMEWORK)
+#if NET
                     password = userInfo.Split(':', StringSplitOptions.None)[1];
 #else
-                    password = userInfo.Split(new char[] { ':' }, StringSplitOptions.None)[1];
+                    password = userInfo.Split(TrimColons, StringSplitOptions.None)[1];
 #endif
                 }
                 else
@@ -195,8 +196,8 @@ public sealed class X509CertificateLocator : IDisposable
 
             var storeName = WebUtility.UrlDecode(_uri.Segments[2].Trim(TrimSlashes).Trim());
 
-#if (!NETSTANDARD2_0 && !NETFRAMEWORK)
-            var storeLocation = Enum.Parse<StoreLocation>(WebUtility.UrlDecode(_uri.Segments[1].Trim(TrimSlashes).Trim()), true);
+#if NET
+            var storeLocation = Enum.Parse<StoreLocation>(WebUtility.UrlDecode(_uri.Segments[1].Trim(TrimSlashes).Trim()), ignoreCase: true);
             using var store = new X509Store(storeName, storeLocation, OpenFlags.OpenExistingOnly | OpenFlags.ReadOnly);
 #else
             var storeLocation = (StoreLocation)Enum.Parse(typeof(StoreLocation), WebUtility.UrlDecode(_uri.Segments[1].Trim(TrimSlashes).Trim()), ignoreCase: true);
@@ -221,8 +222,6 @@ public sealed class X509CertificateLocator : IDisposable
                         // This can not happen if we use thumbprint
                         throw new InvalidOperationException("Multiple certificates were found");  // TODO: Better exception message
                     }
-
-                    // TODO: Validate HasPrivateKey and throw error if false?
 
                     // Create a new instance because the original certificate will be reset
                     _certificate = new X509Certificate2(found[0]);

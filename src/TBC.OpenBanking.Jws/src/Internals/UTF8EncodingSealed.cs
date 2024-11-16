@@ -22,7 +22,6 @@
 
 namespace TBC.OpenBanking.Jws;
 
-using System;
 using System.Text;
 
 // Micro-optimization: Allow for de-virtualization (see https://github.com/dotnet/coreclr/pull/9230)
@@ -32,9 +31,9 @@ internal sealed class UTF8EncodingSealed : UTF8Encoding
 
     public UTF8EncodingSealed() : base(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true) { }
 
-    public override byte[] GetPreamble() => Array.Empty<byte>();
+    public override byte[] GetPreamble() => [];
 
 #if NET5_0_OR_GREATER
-    public override ReadOnlySpan<byte> Preamble => ReadOnlySpan<byte>.Empty;
+    public override ReadOnlySpan<byte> Preamble => [];
 #endif
 }

@@ -36,7 +36,7 @@ public class HttpResponseData : HttpMessageData
     /// </summary>
     public const string ResponseStatusHeaderName = "(response-status)";
 
-    public readonly static IReadOnlyList<(string Name, HeaderNecessity Necessity)> NecessaryHeaders =
+    public static readonly IReadOnlyList<(string Name, HeaderNecessity Necessity)> NecessaryHeaders =
         new List<(string, HeaderNecessity)>(5)
         {
             (ResponseStatusHeaderName, HeaderNecessity.Mandatory),

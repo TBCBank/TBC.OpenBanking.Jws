@@ -38,7 +38,7 @@ public class ProtectedHeader
         // Properties must have public setters for System.Text.Json to be able to deserialize them
 
         [JsonPropertyName("pars")]
-        public List<string> Parameters { get; set; } = new List<string>();
+        public List<string> Parameters { get; set; } = [];
 
         [JsonPropertyName("mId")]
         public string IdentificationMechanism { get; set; } = "http://uri.etsi.org/19182/HttpHeaders";
@@ -60,8 +60,8 @@ public class ProtectedHeader
     public ProtectedHeader()
     {
         EncodeToBeSignedData = false;
-        EncodedCertificates = new List<string>();
-        CriticalHeaderNames = new List<string>(3) { "sigT", "sigD", "b64" };
+        EncodedCertificates = [];
+        CriticalHeaderNames = ["sigT", "sigD", "b64"];
         SignatureTime = DateTime.UtcNow;
     }
 
@@ -98,7 +98,11 @@ public class ProtectedHeader
     public X509Certificate2 DecodeCertificate(string encodedCertificate)
     {
         byte[] rawData = Convert.FromBase64String(encodedCertificate);
+#if NET9_0_OR_GREATER
+        return X509CertificateLoader.LoadCertificate(rawData);
+#else
         return new X509Certificate2(rawData);
+#endif
     }
 
     /// <summary>

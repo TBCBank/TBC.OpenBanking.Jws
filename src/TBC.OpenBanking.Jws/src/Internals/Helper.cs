@@ -27,7 +27,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using JavaScriptEncoder = System.Text.Encodings.Web.JavaScriptEncoder;
 
-static internal class Helper
+internal static class Helper
 {
     // These options match Newtonsoft.Json's defaults, more or less
     private static readonly JsonSerializerOptions s_options = new(JsonSerializerDefaults.Web)
@@ -46,11 +46,11 @@ static internal class Helper
     };
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static internal string SerializeToJson(object obj) => JsonSerializer.Serialize(obj, s_options);
+    internal static string SerializeToJson(object obj) => JsonSerializer.Serialize(obj, s_options);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static internal string SerializeToJson<T>(T obj) => JsonSerializer.Serialize<T>(obj, s_options);
+    internal static string SerializeToJson<T>(T obj) => JsonSerializer.Serialize<T>(obj, s_options);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static internal T DeserializeFromJson<T>(string jsonString) => JsonSerializer.Deserialize<T>(jsonString, s_options);
+    internal static T DeserializeFromJson<T>(string jsonString) => JsonSerializer.Deserialize<T>(jsonString, s_options);
 }

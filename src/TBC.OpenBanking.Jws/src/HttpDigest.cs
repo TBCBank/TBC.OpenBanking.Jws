@@ -31,12 +31,12 @@ internal class HttpDigest
     private readonly HashAlgorithm hashAlgorithm;
     private readonly string digestPrefix;
 
-    internal static readonly List<(HashAlgorithmName AlgorithName, string Prefix)> supportedAlgorithms = new(3)
-    {
+    internal static readonly List<(HashAlgorithmName AlgorithName, string Prefix)> supportedAlgorithms =
+    [
         (HashAlgorithmName.SHA256, "SHA-256"),
         (HashAlgorithmName.SHA384, "SHA-384"),
         (HashAlgorithmName.SHA512, "SHA-512"),
-    };
+    ];
 
     internal HashAlgorithm HashAlgorithm => this.hashAlgorithm;
 
@@ -104,12 +104,13 @@ internal class HttpDigest
     }
 
 #if NETCOREAPP3_1_OR_GREATER
+
     internal string CalculateDigest(ReadOnlySpan<byte> body)
     {
         Span<byte> hash = stackalloc byte[hashAlgorithm.HashSize / 8];
-        hashAlgorithm.TryComputeHash(body, hash, out int bytesWritten);
+        _ = hashAlgorithm.TryComputeHash(body, hash, out int bytesWritten);
         Span<char> chars = stackalloc char[ToBase64_CalculateAndValidateOutputLength(bytesWritten)];
-        Convert.TryToBase64Chars(hash, chars, out _, Base64FormattingOptions.None);
+        _ = Convert.TryToBase64Chars(hash, chars, out _, Base64FormattingOptions.None);
         return digestPrefix + "=" + new string(chars);
     }
 
@@ -119,5 +120,6 @@ internal class HttpDigest
         outlen += ((inputLength % 3) != 0) ? 4 : 0;
         return outlen;
     }
+
 #endif
 }
