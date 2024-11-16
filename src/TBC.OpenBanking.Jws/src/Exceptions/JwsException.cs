@@ -23,9 +23,7 @@
 namespace TBC.OpenBanking.Jws.Exceptions;
 
 using System;
-#if !NET8_0_OR_GREATER
 using System.Runtime.Serialization;
-#endif
 
 [Serializable]
 public abstract class JwsException : Exception
@@ -33,9 +31,7 @@ public abstract class JwsException : Exception
     protected JwsException() { }
     protected JwsException(string message) : base(message) { }
     protected JwsException(string message, Exception inner) : base(message, inner) { }
-#if !NET8_0_OR_GREATER
     protected JwsException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-#endif
 
     protected const int SEVERITY_SUCCESS = 0;
     protected const int SEVERITY_ERROR = 1;
