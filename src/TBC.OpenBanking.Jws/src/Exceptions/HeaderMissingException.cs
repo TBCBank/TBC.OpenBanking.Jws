@@ -23,7 +23,9 @@
 namespace TBC.OpenBanking.Jws.Exceptions;
 
 using System;
+#if !NET8_0_OR_GREATER
 using System.Runtime.Serialization;
+#endif
 
 [Serializable]
 public class HeaderMissingException : JwsException
@@ -47,9 +49,11 @@ public class HeaderMissingException : JwsException
         this.SetHResult(ErrorCode);
     }
 
+#if !NET8_0_OR_GREATER
     protected HeaderMissingException(SerializationInfo info, StreamingContext context)
         : base(info, context)
     {
         this.SetHResult(ErrorCode);
     }
+#endif
 }
