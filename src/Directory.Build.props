@@ -10,6 +10,7 @@
         <Deterministic>false</Deterministic>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+        <NoWarn>$(NoWarn);IDE0008;IDE0011;IDE0022;IDE0055;IDE0065;IDE0130;IDE0160</NoWarn>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(TF_BUILD)' == 'True' or '$(GITHUB_ACTIONS)' == 'true' ">
         <!-- Same sources will produce same binaries: -->
