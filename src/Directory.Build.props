@@ -4,13 +4,23 @@
         <RestoreDisableParallel>false</RestoreDisableParallel>
         <RestoreUseStaticGraphEvaluation>true</RestoreUseStaticGraphEvaluation>
         <MSBuildCopyContentTransitively>true</MSBuildCopyContentTransitively>
-        <Features>strict</Features>
+        <Features>$(Features);strict</Features>
         <WarningLevel>9999</WarningLevel>
         <AnalysisLevel>7</AnalysisLevel>
         <Deterministic>false</Deterministic>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
         <NoWarn>$(NoWarn);IDE0008;IDE0011;IDE0022;IDE0055;IDE0065;IDE0130;IDE0160</NoWarn>
+        <Company>TBC Bank</Company>
+        <Copyright>&#169; TBC Bank</Copyright>
+        <Authors>Giorgi Alkhazishvili</Authors>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <DebugType>embedded</DebugType>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <PackageProjectUrl>https://github.com/TBCBank/TBC.OpenBanking.Jws</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/TBCBank/TBC.OpenBanking.Jws</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(TF_BUILD)' == 'True' or '$(GITHUB_ACTIONS)' == 'true' ">
         <!-- Same sources will produce same binaries: -->
