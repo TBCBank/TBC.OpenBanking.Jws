@@ -2,28 +2,16 @@
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;net6.0;net8.0;net9.0</TargetFrameworks>
-        <LangVersion>latest</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <IsPackable>true</IsPackable>
         <PackageId>TBC.OpenBanking.Jws.Http</PackageId>
         <Title>TBC Open Banking JWS extensions for HTTP client</Title>
         <Description>JSON Web Signature (JWS) client-side extensions for .NET</Description>
-        <Copyright>TBC Bank</Copyright>
         <PackageTags>jws;openapi;openbanking;signature;aspnet;aspnetcore</PackageTags>
-        <Company>TBC Bank</Company>
-        <Authors>george.chakhidze</Authors>
-        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageIcon>icon.png</PackageIcon>
-        <RepositoryUrl>https://github.com/TBCBank/TBC.OpenBanking.Jws</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <RepositoryBranch>master</RepositoryBranch>
         <IncludeSymbols>true</IncludeSymbols>
         <IncludeContentInPack>true</IncludeContentInPack>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <DebugType>embedded</DebugType>
         <EnablePackageValidation>true</EnablePackageValidation>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
@@ -62,6 +50,10 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="4.*">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="SonarAnalyzer.CSharp" Version="10.*">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
