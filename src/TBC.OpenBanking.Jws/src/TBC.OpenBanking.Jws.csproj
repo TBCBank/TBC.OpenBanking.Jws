@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net6.0;net8.0;net9.0</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;net8.0;net9.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <IsPackable>true</IsPackable>
@@ -16,9 +16,8 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <EnablePackageValidation>true</EnablePackageValidation>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
-        <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
-        <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
         <AnalysisLevel>latest-all</AnalysisLevel>
+        <NoWarn>$(NoWarn);CA1510</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -29,6 +28,8 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0')) ">
+        <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
+        <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
         <EnableAotAnalyzer>true</EnableAotAnalyzer>
     </PropertyGroup>
 
@@ -71,11 +72,6 @@
     <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.*" />
         <PackageReference Include="System.Buffers" Version="4.*" />
-        <PackageReference Include="System.Text.Json" Version="6.0.*" />
-    </ItemGroup>
-
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.*" />
         <PackageReference Include="System.Text.Json" Version="6.0.*" />
     </ItemGroup>
 
