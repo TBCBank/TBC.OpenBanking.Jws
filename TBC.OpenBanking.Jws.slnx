@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Examples/">
+    <Project Path="src/examples/ConsoleHttpClientExample/ConsoleHttpClientExample.csproj" />
+    <Project Path="src/examples/SampleConsole/SampleConsole.csproj" />
+    <Project Path="src/examples/WebApiHttpClientExample/WebApiHttpClientExample.csproj" />
+  </Folder>
+  <Project Path="src/TBC.OpenBanking.Jws.Http/src/TBC.OpenBanking.Jws.Http.csproj" />
+  <Project Path="src/TBC.OpenBanking.Jws/src/TBC.OpenBanking.Jws.csproj" />
+</Solution>
