@@ -95,7 +95,7 @@ public class AlgorithmEcdsa : Algorithm
     ///// <summary>
     ///// ECDsa Cryptographic service provider.
     ///// </summary>
-    //public ECDsa AsymmetricAlgorithm => ecdPrivate;
+    //public ECDsa AsymmetricAlgorithm => ecdPrivate
 
     /// <summary>
     /// Signs data.
@@ -188,7 +188,7 @@ public class AlgorithmEcdsa : Algorithm
         algorithName = CreateAlgorithmName(hashSize);
     }
 
-    private int GetHashSize(HashAlgorithmName hashName)
+    private static int GetHashSize(HashAlgorithmName hashName)
     {
         if (hashName == HashAlgorithmName.SHA256)
             return 256;
@@ -200,7 +200,7 @@ public class AlgorithmEcdsa : Algorithm
         throw new CryptographicException($"Not suitable hash algorithm {hashName.Name}");
     }
 
-    private string CreateAlgorithmName(int hashSize)
+    private static string CreateAlgorithmName(int hashSize)
     {
         return "ES" + hashSize.ToString(CultureInfo.InvariantCulture);
     }

@@ -23,15 +23,12 @@
 namespace TBC.OpenBanking.Jws.Exceptions;
 
 using System;
-using System.Runtime.Serialization;
 
-[Serializable]
 public abstract class JwsException : Exception
 {
     protected JwsException() { }
     protected JwsException(string message) : base(message) { }
     protected JwsException(string message, Exception inner) : base(message, inner) { }
-    protected JwsException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
     protected const int SEVERITY_SUCCESS = 0;
     protected const int SEVERITY_ERROR = 1;

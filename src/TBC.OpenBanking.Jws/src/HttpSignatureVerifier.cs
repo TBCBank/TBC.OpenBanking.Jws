@@ -176,7 +176,7 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
         }
     }
 
-    private void CheckProtectedHeader(ProtectedHeader protHeader)
+    private static void CheckProtectedHeader(ProtectedHeader protHeader)
     {
         if (protHeader.EncodedCertificates.Count < 1)
             throw new SignatureVerificationProblemException("No certificates in 'x5c' field");
@@ -184,7 +184,7 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
         // TODO: Perform more validations
     }
 
-    private void CheckMandatoryHeaders(T data)
+    private static void CheckMandatoryHeaders(T data)
     {
         if (!data.Headers.ContainsKey(HttpMessageData.SignatureHeaderName))
             throw new HeaderMissingException($"Mandatory header '{HttpMessageData.SignatureHeaderName}' is missing");

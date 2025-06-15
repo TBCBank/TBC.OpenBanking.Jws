@@ -23,17 +23,27 @@
 namespace TBC.OpenBanking.Jws.Exceptions;
 
 using System;
-using System.Runtime.Serialization;
 using System.Security.Cryptography.X509Certificates;
 
-[Serializable]
 public class CertificateValidationException : JwsException
 {
     private const int ErrorCode = 102;
     private readonly string message;
 
+    public CertificateValidationException()
+    {
+        this.SetHResult(ErrorCode);
+    }
+
     public CertificateValidationException(string message)
         : base(message)
+    {
+        this.SetHResult(ErrorCode);
+        this.message = message;
+    }
+
+    public CertificateValidationException(string message, Exception innerException)
+        : base(message, innerException)
     {
         this.SetHResult(ErrorCode);
         this.message = message;
@@ -67,39 +77,4 @@ public class CertificateValidationException : JwsException
     }
 
     public override string Message { get => this.message; }
-
-    public CertificateValidationException(string message, Exception innerException)
-        : base(message, innerException)
-    {
-        this.SetHResult(ErrorCode);
-        this.message = message;
-    }
-
-    public CertificateValidationException()
-    {
-        this.SetHResult(ErrorCode);
-    }
-
-    protected CertificateValidationException(SerializationInfo info, StreamingContext context)
-        : base(info, context)
-    {
-        if (info == null)
-        {
-            throw new ArgumentNullException(nameof(info));
-        }
-
-        this.message = info.GetString("message2");
-        this.SetHResult(ErrorCode);
-    }
-
-    public override void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-        if (info == null)
-        {
-            throw new ArgumentNullException(nameof(info));
-        }
-
-        info.AddValue("message2", this.message, typeof(string));
-        base.GetObjectData(info, context);
-    }
 }

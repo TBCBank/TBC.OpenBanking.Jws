@@ -103,7 +103,7 @@ public class AlgorithmRsaSsa : Algorithm
     ///// <summary>
     ///// RSA Cryptographic service provider.
     ///// </summary>
-    //public RSA AsymmetricAlgorithm => rsaPrivate;
+    //public RSA AsymmetricAlgorithm => rsaPrivate
 
     /// <summary>
     /// Signs data.
@@ -194,7 +194,7 @@ public class AlgorithmRsaSsa : Algorithm
         this.algorithName = CreateAlgorithmName(padding, hashName);
     }
 
-    private string CreateAlgorithmName(RSASignaturePadding padding, HashAlgorithmName hashName)
+    private static string CreateAlgorithmName(RSASignaturePadding padding, HashAlgorithmName hashName)
     {
         int hashSize;
         if (hashName == HashAlgorithmName.SHA256) hashSize = 256;

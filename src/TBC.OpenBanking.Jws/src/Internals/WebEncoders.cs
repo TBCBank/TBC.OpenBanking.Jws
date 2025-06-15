@@ -13,7 +13,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 
-#if NETCOREAPP
+#if NET
 using System.Buffers;
 #endif
 
@@ -219,7 +219,7 @@ internal static class WebEncoders
 
         ValidateParameters(input.Length, nameof(input), offset, count);
 
-#if NETCOREAPP
+#if NET
         return Base64UrlEncode(input.AsSpan(offset, count));
 #else
         // Special-case empty input
@@ -284,7 +284,7 @@ internal static class WebEncoders
                 nameof(count));
         }
 
-#if NETCOREAPP
+#if NET
         return Base64UrlEncode(input.AsSpan(offset, count), output.AsSpan(outputOffset));
 #else
         // Special-case empty input.
@@ -335,7 +335,7 @@ internal static class WebEncoders
         return checked(numWholeOrPartialInputBlocks * 4);
     }
 
-#if NETCOREAPP
+#if NET
     /// <summary>
     /// Encodes <paramref name="input"/> using base64url encoding.
     /// </summary>

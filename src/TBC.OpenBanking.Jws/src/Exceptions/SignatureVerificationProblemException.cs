@@ -23,9 +23,7 @@
 namespace TBC.OpenBanking.Jws.Exceptions;
 
 using System;
-using System.Runtime.Serialization;
 
-[Serializable]
 public class SignatureVerificationProblemException : JwsException
 {
     private const int ErrorCode = 100;
@@ -43,12 +41,6 @@ public class SignatureVerificationProblemException : JwsException
 
     public SignatureVerificationProblemException(string message, Exception innerException)
         : base(message, innerException)
-    {
-        this.SetHResult(ErrorCode);
-    }
-
-    protected SignatureVerificationProblemException(SerializationInfo info, StreamingContext context)
-        : base(info, context)
     {
         this.SetHResult(ErrorCode);
     }

@@ -23,9 +23,7 @@
 namespace TBC.OpenBanking.Jws.Exceptions;
 
 using System;
-using System.Runtime.Serialization;
 
-[Serializable]
 public class HeaderMissingException : JwsException
 {
     private const int ErrorCode = 101;
@@ -43,12 +41,6 @@ public class HeaderMissingException : JwsException
 
     public HeaderMissingException(string message, Exception innerException)
         : base(message, innerException)
-    {
-        this.SetHResult(ErrorCode);
-    }
-
-    protected HeaderMissingException(SerializationInfo info, StreamingContext context)
-        : base(info, context)
     {
         this.SetHResult(ErrorCode);
     }
