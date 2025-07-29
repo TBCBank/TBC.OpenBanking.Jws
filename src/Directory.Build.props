@@ -12,7 +12,7 @@
         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
         <NoWarn>$(NoWarn);IDE0008;IDE0011;IDE0022;IDE0055;IDE0065;IDE0130;IDE0160</NoWarn>
         <Company>TBC Bank</Company>
-        <Copyright>&#169; TBC Bank</Copyright>
+        <Copyright>© TBC Bank</Copyright>
         <Authors>Giorgi Alkhazishvili</Authors>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
