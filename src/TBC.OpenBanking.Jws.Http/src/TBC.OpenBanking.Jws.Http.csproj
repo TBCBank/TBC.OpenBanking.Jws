@@ -68,8 +68,8 @@
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="6.0.*" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.*" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.7" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.7" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
