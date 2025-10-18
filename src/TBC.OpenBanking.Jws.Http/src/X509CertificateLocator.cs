@@ -21,6 +21,7 @@
  */
 
 #nullable enable
+#pragma warning disable S1066, S1135, IDE0045, IDE0046, IDE0057
 
 namespace TBC.OpenBanking.Jws;
 
@@ -139,8 +140,8 @@ public sealed class X509CertificateLocator : IDisposable
         if (_isPfxFile)
         {
             //
-            // SChannel (TLS infrastructure on Windows) does not support ephemeral keys ("in-memory");
-            // keys must be persisted somewhere; put them in current user's store:
+            // SChannel (TLS infrastructure on Windows) does not support ephemeral keys ("in-memory").
+            // Keys must be persisted somewhere; put them in current user's store:
             //
             const X509KeyStorageFlags keyFlags = X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.UserKeySet;
 
@@ -180,11 +181,19 @@ public sealed class X509CertificateLocator : IDisposable
                     password = userInfo;
                 }
 
+#if NET9_0_OR_GREATER
+                _certificate = X509CertificateLoader.LoadPkcs12FromFile(fullPath, password, keyFlags);
+#else
                 _certificate = new X509Certificate2(fullPath, password, keyFlags);
+#endif
             }
             else
             {
+#if NET9_0_OR_GREATER
+                _certificate = X509CertificateLoader.LoadPkcs12FromFile(fullPath, password: null, keyFlags);
+#else
                 _certificate = new X509Certificate2(fullPath, (string?)null, keyFlags);
+#endif
             }
         }
         else if (_isCertStore)
