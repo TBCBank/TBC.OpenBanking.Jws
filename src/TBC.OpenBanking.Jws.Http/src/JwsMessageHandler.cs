@@ -21,6 +21,7 @@
  */
 
 #nullable enable
+#pragma warning disable S1135
 
 namespace TBC.OpenBanking.Jws.Http;
 
@@ -45,12 +46,12 @@ using TBC.OpenBanking.Jws.Exceptions;
 /// <remarks>
 ///     NOTICE: Must be registered as transient or scoped; NOT as singleton!
 /// </remarks>
+#if NET
+[RequiresDynamicCode("Uses JsonSerializer")]
+[RequiresUnreferencedCode("Uses JsonSerializer")]
+#endif
 public sealed class JwsMessageHandler : DelegatingHandler
 {
-    private readonly IOptions<JwsClientOptions> jwsOptions;
-    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "This class does not own this certificate")]
-    private readonly X509Certificate2? signerCertificate;
-
     private readonly HttpSigner<HttpRequestData>? reqSign;
     private readonly HttpSignatureVerifier<HttpResponseData>? verifier;
 
@@ -77,18 +78,16 @@ public sealed class JwsMessageHandler : DelegatingHandler
         _ = options ?? throw new ArgumentNullException(nameof(options));
         _ = cache ?? throw new ArgumentNullException(nameof(cache));
 
-        this.jwsOptions = options;
-
         this.doNotSign = options.Value.SigningCertificate is null;
         this.doNotValidate = !options.Value.ValidateSignature;
 
         if (!this.doNotSign)
         {
-            this.signerCertificate = jwsOptions.Value.SigningCertificate!.GetCertificate();
+            var signerCertificate = options.Value.SigningCertificate!.GetCertificate();
 
             var signer = SupportedAlgorithms.CreateSigner(
                 signerCertificate,
-                jwsOptions.Value.AlgorithmName);
+                options.Value.AlgorithmName);
 
             this.reqSign = new HttpSigner<HttpRequestData>(
                 loggerFactory is null
@@ -97,7 +96,7 @@ public sealed class JwsMessageHandler : DelegatingHandler
             {
                 Signer = signer,
                 SignerCertificate = signerCertificate,  // TODO: Separate publicKeyCert; or maybe dont.
-                SignerCertificateChain = GetCertificateChain(this.jwsOptions, cache, signerCertificate!),
+                SignerCertificateChain = GetCertificateChain(options, cache, signerCertificate!),
             };
         }
 
@@ -108,10 +107,10 @@ public sealed class JwsMessageHandler : DelegatingHandler
                     ? NullLoggerFactory.Instance.CreateLogger<HttpSignatureVerifier<HttpResponseData>>()
                     : loggerFactory.CreateLogger<HttpSignatureVerifier<HttpResponseData>>())
             {
-                CheckSignatureTimeConstraint = this.jwsOptions.Value.CheckSignatureTimeConstraint,
+                CheckSignatureTimeConstraint = options.Value.CheckSignatureTimeConstraint,
                 CertificateValidationFlags = new CertificateValidationFlags
                 {
-                    RevocationMode = this.jwsOptions.Value.CheckCertificateRevocationList
+                    RevocationMode = options.Value.CheckCertificateRevocationList
                         ? X509RevocationMode.Online
                         : X509RevocationMode.NoCheck,
                 },
@@ -129,11 +128,17 @@ public sealed class JwsMessageHandler : DelegatingHandler
         return await this.ProcessResponseAsync(response, cancellationToken).ConfigureAwait(false);
     }
 
+#pragma warning disable S1172  // It is used when TFM is .NET 8+
+
     private async Task<HttpRequestMessage> ProcessRequestAsync(
         HttpRequestMessage request,
         CancellationToken cancellationToken)
     {
+#if NET
+        ArgumentNullException.ThrowIfNull(request);
+#else
         _ = request ?? throw new ArgumentNullException(nameof(request));
+#endif
 
         if (this.doNotSign)
         {
@@ -158,7 +163,7 @@ public sealed class JwsMessageHandler : DelegatingHandler
         {
             // This is ugly, but there's no better way (so far):
 
-#if NET6_0_OR_GREATER
+#if NET
             httpData.Body = await request.Content!.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
 #else
             httpData.Body = await request.Content!.ReadAsByteArrayAsync().ConfigureAwait(false);
@@ -183,7 +188,11 @@ public sealed class JwsMessageHandler : DelegatingHandler
         HttpResponseMessage response,
         CancellationToken cancellationToken)
     {
+#if NET
+        ArgumentNullException.ThrowIfNull(response);
+#else
         _ = response ?? throw new ArgumentNullException(nameof(response));
+#endif
 
         if (this.doNotValidate)
         {
@@ -208,7 +217,7 @@ public sealed class JwsMessageHandler : DelegatingHandler
 
                 // This is ugly, but there's no better way (so far):
 
-#if NET6_0_OR_GREATER
+#if NET
                 httpData.Body = await response.Content!.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
 #else
                 httpData.Body = await response.Content!.ReadAsByteArrayAsync().ConfigureAwait(false);
@@ -220,6 +229,8 @@ public sealed class JwsMessageHandler : DelegatingHandler
 
         return response;
     }
+
+#pragma warning restore S1172
 
     private static X509Certificate2Collection GetCertificateChain(
         IOptions<JwsClientOptions> options,
