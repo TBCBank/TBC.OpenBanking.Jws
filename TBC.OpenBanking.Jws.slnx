@@ -4,6 +4,15 @@
     <Project Path="src/examples/SampleConsole/SampleConsole.csproj" />
     <Project Path="src/examples/WebApiHttpClientExample/WebApiHttpClientExample.csproj" />
   </Folder>
+  <Folder Name="/Meta/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="global.json" />
+    <File Path="LICENSE.txt" />
+    <File Path="README.md" />
+    <File Path="renovate.json" />
+  </Folder>
   <Project Path="src/TBC.OpenBanking.Jws.Http/src/TBC.OpenBanking.Jws.Http.csproj" />
   <Project Path="src/TBC.OpenBanking.Jws/src/TBC.OpenBanking.Jws.csproj" />
 </Solution>
