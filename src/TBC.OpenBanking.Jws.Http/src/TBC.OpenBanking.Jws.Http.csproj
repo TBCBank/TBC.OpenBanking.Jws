@@ -11,18 +11,19 @@
         <PackageIcon>icon.png</PackageIcon>
         <IncludeSymbols>true</IncludeSymbols>
         <IncludeContentInPack>true</IncludeContentInPack>
+        <RepositoryUrl>https://github.com/TBCBank/TBC.OpenBanking.Jws</RepositoryUrl>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EnablePackageValidation>true</EnablePackageValidation>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <AnalysisLevel>latest-all</AnalysisLevel>
-        <NoWarn>$(NoWarn);CA1510</NoWarn>
+        <NoWarn>$(NoWarn);CA1510;IDE0079;MA0026;MA0051</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>$(NoWarn);1701;1702;1591</NoWarn>
-        <WarningsAsErrors>NU1605</WarningsAsErrors>
+        <NoWarn>$(NoWarn);CS1591</NoWarn>
+        <WarningsAsErrors>$(WarningsAsErrors);NU1605</WarningsAsErrors>
     </PropertyGroup>
 
     <PropertyGroup Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0')) ">
@@ -68,8 +69,8 @@
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="6.0.*" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.*" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.*" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.*" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
