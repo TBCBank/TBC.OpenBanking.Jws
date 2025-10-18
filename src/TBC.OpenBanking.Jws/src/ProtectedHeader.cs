@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+#pragma warning disable CA1002, CA1034, CA1051, CA1819, CA2227, MA0016, S1066, S2325  // Cannot be changed without breaking the public API contract
+
 namespace TBC.OpenBanking.Jws;
 
 using System;
@@ -52,7 +54,9 @@ public class ProtectedHeader
             {
                 // Preventing duplication
                 if (!Parameters.Contains(value, StringComparer.OrdinalIgnoreCase))
+                {
                     Parameters.Add(value.ToLowerInvariant());
+                }
             }
         }
     }

@@ -249,7 +249,7 @@ internal static class WebEncoders
     /// The offset into <paramref name="output"/> at which to begin writing the base64url-encoded form of
     /// <paramref name="input"/>.
     /// </param>
-    /// <param name="count">The number of <c>byte</c>s from <paramref name="input"/> to encode.</param>
+    /// <param name="count">The number of bytes from <paramref name="input"/> to encode.</param>
     /// <returns>
     /// The number of characters written to <paramref name="output"/>, less any padding characters.
     /// </returns>
@@ -336,14 +336,13 @@ internal static class WebEncoders
     }
 
 #if NET
+#pragma warning disable S1121
     /// <summary>
     /// Encodes <paramref name="input"/> using base64url encoding.
     /// </summary>
     /// <param name="input">The binary input to encode.</param>
     /// <returns>The base64url-encoded form of <paramref name="input"/>.</returns>
-#if NET6_0_OR_GREATER
     [System.Runtime.CompilerServices.SkipLocalsInit]
-#endif
     public static string Base64UrlEncode(ReadOnlySpan<byte> input)
     {
         const int StackAllocThreshold = 128;
@@ -361,7 +360,7 @@ internal static class WebEncoders
             : bufferToReturnToPool = ArrayPool<char>.Shared.Rent(bufferSize);
 
         var numBase64Chars = Base64UrlEncode(input, buffer);
-        var base64Url = new string(buffer.Slice(0, numBase64Chars));
+        var base64Url = new string(buffer[..numBase64Chars]);
 
         if (bufferToReturnToPool != null)
         {

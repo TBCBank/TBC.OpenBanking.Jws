@@ -27,6 +27,10 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using JavaScriptEncoder = System.Text.Encodings.Web.JavaScriptEncoder;
 
+#if NET
+[RequiresDynamicCode("Uses JsonSerializer")]
+[RequiresUnreferencedCode("Uses JsonSerializer")]
+#endif
 internal static class Helper
 {
     // These options match Newtonsoft.Json's defaults, more or less

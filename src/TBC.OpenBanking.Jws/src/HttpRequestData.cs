@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+#pragma warning disable S125
+
 namespace TBC.OpenBanking.Jws;
 
 using System;
@@ -103,7 +105,7 @@ public class HttpRequestData : HttpMessageData
     // /// <summary>
     // /// Collect headers data for signing.
     // /// Headers are fetched from <paramref name="data"/>
-    // /// a) by name from necessaryHeaderNames;
+    // /// a) by name from necessaryHeaderNames
     // /// b) by matching prefix "psu-*"
     // /// b) special headers "(request-target)" from data.Uri and "digest" from with value <paramref name="digestValue"/>
     // /// </summary>
@@ -186,7 +188,7 @@ public class HttpRequestData : HttpMessageData
             }
             else
             {
-                if (Headers.TryGetValue(name, out string headerValue))
+                if (Headers.ContainsKey(name))
                 {
                     headersList.Add(name.ToLowerInvariant());
                 }

@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+#pragma warning disable S1135
+
 namespace TBC.OpenBanking.Jws;
 
 using System;
@@ -61,6 +63,10 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
     /// <param name="httpData">Contains data from HTTP request</param>
     /// <param name="checkTime">Time when request was received. This time is used to check time span constraint, which is 2 seconds.</param>
     /// <returns></returns>
+#if NET
+    [RequiresDynamicCode("Uses JsonSerializer")]
+    [RequiresUnreferencedCode("Uses JsonSerializer")]
+#endif
     public bool VerifySignature(T httpData, DateTime checkTime)
     {
         _ = httpData ?? throw new ArgumentNullException(nameof(httpData));
@@ -208,7 +214,11 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
 
         foreach (var oidSubjectName in HttpMessageData.OidSubjectNames)
         {
+#if NET
+            oidString = subjects.FirstOrDefault(x => x.Contains(oidSubjectName, StringComparison.Ordinal));
+#else
             oidString = subjects.FirstOrDefault(x => x.Contains(oidSubjectName));
+#endif
 
             if (oidString != null)
             {

@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+#pragma warning disable S125, S1135, MA0025
+
 namespace TBC.OpenBanking.Jws;
 
 using System;
@@ -48,7 +50,6 @@ public class AlgorithmEcdsa : Algorithm
 {
     private ECDsa ecdPrivate;
     private ECDsa ecdPublic;
-    private int hashSize;
     private HashAlgorithmName hashName;
     private string algorithName;
 
@@ -119,10 +120,15 @@ public class AlgorithmEcdsa : Algorithm
         if (ecdPrivate == null) throw new CryptographicException("Private key is not set");
 
         byte[] signature;
+
+#pragma warning disable S2445  // Assigned only once
+
         lock (ecdPrivate)
         {
             signature = ecdPrivate.SignData(data, hashName);
         }
+
+#pragma warning restore S2445
 
         return signature;
     }
@@ -183,7 +189,7 @@ public class AlgorithmEcdsa : Algorithm
     {
         ecdPrivate = privateKey;
         ecdPublic = publickey;
-        hashSize = GetHashSize(hashName);
+        var hashSize = GetHashSize(hashName);
         this.hashName = hashName;
         algorithName = CreateAlgorithmName(hashSize);
     }

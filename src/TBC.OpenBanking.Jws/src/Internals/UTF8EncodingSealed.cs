@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+#pragma warning disable S101
+
 namespace TBC.OpenBanking.Jws;
 
 using System.Text;
@@ -33,7 +35,7 @@ internal sealed class UTF8EncodingSealed : UTF8Encoding
 
     public override byte[] GetPreamble() => [];
 
-#if NET5_0_OR_GREATER
+#if NET
     public override ReadOnlySpan<byte> Preamble => [];
 #endif
 }

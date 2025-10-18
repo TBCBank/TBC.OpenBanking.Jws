@@ -111,7 +111,7 @@ public class HttpResponseData : HttpMessageData
             }
             else
             {
-                if (Headers.TryGetValue(Name, out string headerValue))
+                if (Headers.ContainsKey(Name))
                 {
                     headersList.Add(Name.ToLowerInvariant());
                 }

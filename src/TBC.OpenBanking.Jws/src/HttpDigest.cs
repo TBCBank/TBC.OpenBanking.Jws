@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+#pragma warning disable IDE0057
+
 namespace TBC.OpenBanking.Jws;
 
 using System;
@@ -68,7 +70,11 @@ internal class HttpDigest
         // Example:
         // SHA-256=+xeh7JAayYPh8K13UnQCBBcniZzsyat+KDiuy8aZYdI=
 
+#if NET
+        int dividerIndex = digestString.IndexOf('=', StringComparison.Ordinal);
+#else
         int dividerIndex = digestString.IndexOf('=');
+#endif
         if (dividerIndex == -1)
             throw new ArgumentOutOfRangeException(nameof(digestString), "Bad format of digest string. Can't find algorithm prefix");
 
@@ -80,7 +86,7 @@ internal class HttpDigest
         return new HttpDigest(element.AlgorithName);
     }
 
-    private string GetDigestHeader(HashAlgorithmName hashAlgorithmName)
+    private static string GetDigestHeader(HashAlgorithmName hashAlgorithmName)
     {
         var element = supportedAlgorithms.Find(x => x.AlgorithName == hashAlgorithmName);
         if (element == default)

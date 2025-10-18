@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+#pragma warning disable S125, S1135, MA0025
+
 namespace TBC.OpenBanking.Jws;
 
 using System;
@@ -127,10 +129,15 @@ public class AlgorithmRsaSsa : Algorithm
         if (rsaPrivate == null) throw new CryptographicException("Private key is not set");
 
         byte[] signature;
+
+#pragma warning disable S2445  // Assigned only once
+
         lock (rsaPrivate)
         {
             signature = rsaPrivate.SignData(data, hashName, padding);
         }
+
+#pragma warning restore S2445
 
         return signature;
     }

@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+#pragma warning disable CA1002, CA1051, CA1819, MA0016  // Cannot be changed without breaking the public API contract
+
 namespace TBC.OpenBanking.Jws;
 
 using System;

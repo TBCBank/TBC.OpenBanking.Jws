@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+#pragma warning disable CA1002, CA1051, CA1819, CA2227, MA0016  // Cannot be changed without breaking the public API contract
+
 namespace TBC.OpenBanking.Jws;
 
 using System;
@@ -83,6 +85,10 @@ public class HttpSigner<T> where T : HttpMessageData
     /// </summary>
     /// <param name="httpData">Request data</param>
     /// <returns>true if signature created without a problem</returns>
+#if NET
+    [RequiresDynamicCode("Uses JsonSerializer")]
+    [RequiresUnreferencedCode("Uses JsonSerializer")]
+#endif
     public bool CreateSignature(T httpData)
     {
         if (httpData == null) throw new ArgumentNullException(nameof(httpData));

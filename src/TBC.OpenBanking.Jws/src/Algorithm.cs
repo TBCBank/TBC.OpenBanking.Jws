@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+#pragma warning disable CA1063, S3881  // Cannot be changed without breaking the public API contract
+
 namespace TBC.OpenBanking.Jws;
 
 using System;
@@ -46,6 +48,10 @@ public abstract class Algorithm : IDisposable, ISigner
     /// <param name="encodedHeader">Resulting encoded header string.</param>
     /// <param name="encodedPayload">Resulting encoded payload string.</param>
     /// <param name="encodedSignature">Generated signature encoded as Base64Url string.</param>
+#if NET
+    [RequiresDynamicCode("Uses JsonSerializer")]
+    [RequiresUnreferencedCode("Uses JsonSerializer")]
+#endif
     public virtual void Sign(IDictionary<string, object> headers, IDictionary<string, object> payload,
         out string encodedHeader, out string encodedPayload, out string encodedSignature)
     {

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable enable
+#pragma warning disable IDE0057, IDE0251, MA0102
 
 using System.Buffers;
 using System.Diagnostics;
@@ -71,7 +72,7 @@ internal ref struct ValueStringBuilder
     /// This overload is pattern matched in the C# 7.3+ compiler so you can omit
     /// the explicit method call, and write eg "fixed (char* c = builder)"
     /// </summary>
-    public readonly ref char GetPinnableReference()
+    public ref char GetPinnableReference()
     {
         return ref MemoryMarshal.GetReference(_chars);
     }
@@ -135,12 +136,10 @@ internal ref struct ValueStringBuilder
             Dispose();
             return true;
         }
-        else
-        {
-            charsWritten = 0;
-            Dispose();
-            return false;
-        }
+
+        charsWritten = 0;
+        Dispose();
+        return false;
     }
 
     public void Insert(int index, char value, int count)
@@ -206,9 +205,10 @@ internal ref struct ValueStringBuilder
     public void Append(char c)
     {
         int pos = _pos;
-        if ((uint)pos < (uint)_chars.Length)
+        Span<char> chars = _chars;
+        if ((uint)pos < (uint)chars.Length)
         {
-            _chars[pos] = c;
+            chars[pos] = c;
             _pos = pos + 1;
         }
         else
@@ -299,7 +299,7 @@ internal ref struct ValueStringBuilder
         _pos += length;
     }
 
-    public void Append(ReadOnlySpan<char> value)
+    public void Append(scoped ReadOnlySpan<char> value)
     {
         int pos = _pos;
         if (pos > _chars.Length - value.Length)
