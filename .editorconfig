@@ -1,18 +1,13 @@
 ﻿# editorconfig.org
 
-# top-most EditorConfig file
 root = true
 
-# Default settings:
-# A newline ending every file
-# Use 4 spaces as indentation
 [*]
 insert_final_newline = true
 indent_style = space
 indent_size = 4
 trim_trailing_whitespace = true
 
-# Generated code
 [*{_AssemblyInfo.cs,.notsupported.cs,.generated.cs,.g.cs}]
 generated_code = true
 
@@ -21,6 +16,8 @@ charset = utf-8-bom
 indent_style = space
 indent_size = 4
 insert_final_newline = true
+
+file_header_template = Copyright ⓒ TBC Bank. All rights reserved.
 
 dotnet_sort_system_directives_first = true
 
@@ -62,4 +59,4 @@ indent_size = 4
 
 # PowerShell files
 [*.{ps1,psd1,psm1}]
-charset = latin1
+charset = utf-8-bom

@@ -8,10 +8,14 @@
     <File Path=".editorconfig" />
     <File Path=".gitattributes" />
     <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
     <File Path="global.json" />
     <File Path="LICENSE.txt" />
     <File Path="README.md" />
     <File Path="renovate.json" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="tests/JwsTests/TBC.OpenBanking.Jws.Tests.csproj" />
   </Folder>
   <Project Path="src/TBC.OpenBanking.Jws.Http/src/TBC.OpenBanking.Jws.Http.csproj" />
   <Project Path="src/TBC.OpenBanking.Jws/src/TBC.OpenBanking.Jws.csproj" />

@@ -44,9 +44,8 @@ jobs:
         $revisionId = $(git rev-parse --short $env:GITHUB_SHA)
         dotnet build -c Release --no-restore "-p:SourceRevisionId=$revisionId"
 
-    # There are no tests yet.
-    #- name: Test
-    #  run: dotnet test -c Release --no-restore --no-build --verbosity normal
+    - name: Test
+      run: dotnet test --project tests/JwsTests/TBC.OpenBanking.Jws.Tests.csproj -c Release --no-restore --no-build --verbosity normal
 
     - name: Push Jws
       run: dotnet nuget push "src\TBC.OpenBanking.Jws\src\bin\Release\*.nupkg" -k "${{ secrets.NUGET_API_KEY }}" -s "https://api.nuget.org/v3/index.json" -n --skip-duplicate --force-english-output

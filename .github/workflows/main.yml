@@ -47,6 +47,5 @@ jobs:
     - name: Build
       run: dotnet build -c Release --no-restore -p:SourceRevisionId=$(git rev-parse --short $GITHUB_SHA)
 
-    # There are no tests yet.
-    #- name: Test
-    #  run: dotnet test -c Release --no-restore --no-build --verbosity normal
+    - name: Test
+      run: dotnet test --project tests/JwsTests/TBC.OpenBanking.Jws.Tests.csproj -c Release --no-restore --no-build --verbosity normal
