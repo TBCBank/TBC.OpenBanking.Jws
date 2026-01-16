@@ -6,14 +6,13 @@
         <MSBuildCopyContentTransitively>true</MSBuildCopyContentTransitively>
         <Features>$(Features);strict</Features>
         <WarningLevel>9999</WarningLevel>
-        <AnalysisLevel>7</AnalysisLevel>
         <Deterministic>false</Deterministic>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
         <NoWarn>$(NoWarn);IDE0008;IDE0011;IDE0022;IDE0055;IDE0065;IDE0130;IDE0160</NoWarn>
         <Company>TBC Bank</Company>
         <Copyright>&#169; TBC Bank</Copyright>
-        <Authors>Giorgi Alkhazishvili</Authors>
+        <Authors>galkhazishvili</Authors>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <DebugType>embedded</DebugType>
@@ -23,7 +22,6 @@
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(TF_BUILD)' == 'True' or '$(GITHUB_ACTIONS)' == 'true' ">
-        <!-- Same sources will produce same binaries: -->
         <Deterministic>true</Deterministic>
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
         <DisableImplicitAspNetCoreAnalyzers>true</DisableImplicitAspNetCoreAnalyzers>
@@ -31,6 +29,5 @@
         <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
         <EnableNETAnalyzers>false</EnableNETAnalyzers>
     </PropertyGroup>
-    <!-- Include Local.Build.props file that contains settings specific to developer's machine: -->
     <Import Project="$(MSBuildThisFileDirectory)Local.Build.props" Condition="Exists('$(MSBuildThisFileDirectory)Local.Build.props')" />
 </Project>
