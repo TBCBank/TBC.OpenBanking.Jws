@@ -26,7 +26,6 @@ jobs:
       DOTNET_DISABLE_GUI_ERRORS: 1
       DOTNET_GENERATE_ASPNET_CERTIFICATE: 0
       DOTNET_NOLOGO: 1
-      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
     permissions:
       actions: read
       contents: read
@@ -41,7 +40,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-depth: 1
 
