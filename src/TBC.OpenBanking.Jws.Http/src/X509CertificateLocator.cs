@@ -132,7 +132,7 @@ public sealed class X509CertificateLocator : IDisposable
             return null;
         }
 
-        if (_certificate != null)
+        if (_certificate is not null)
         {
             return _certificate;
         }
@@ -260,7 +260,7 @@ public sealed class X509CertificateLocator : IDisposable
 
     private static void Reset(X509Certificate2Collection? collection)
     {
-        if (collection != null)
+        if (collection is not null)
         {
             for (int i = 0; i < collection.Count; i++)
             {

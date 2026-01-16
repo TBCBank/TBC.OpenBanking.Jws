@@ -94,8 +94,8 @@ public abstract class HttpMessageData
 
     public void AddHeader(string name, string value)
     {
-        if (name == null) throw new ArgumentNullException(nameof(name));
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(value);
 
         if (!Headers.ContainsKey(name))
         {
@@ -111,7 +111,7 @@ public abstract class HttpMessageData
     /// If false, then multivalue headers are not acceptable and correspondent exeption will be thrown</param>
     public void AppendHeaders(HttpHeaders httpHeaders, bool acceptMultivalue = false)
     {
-        if (httpHeaders == null) throw new ArgumentNullException(nameof(httpHeaders));
+        ArgumentNullException.ThrowIfNull(httpHeaders);
 
         using var sb = new ValueStringBuilder(initialCapacity: 128);
         foreach (var header in httpHeaders)

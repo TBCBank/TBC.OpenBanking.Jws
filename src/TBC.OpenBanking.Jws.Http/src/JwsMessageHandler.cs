@@ -75,8 +75,8 @@ public sealed class JwsMessageHandler : DelegatingHandler
         ILoggerFactory loggerFactory,
         IMemoryCache cache)
     {
-        _ = options ?? throw new ArgumentNullException(nameof(options));
-        _ = cache ?? throw new ArgumentNullException(nameof(cache));
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(cache);
 
         this.doNotSign = options.Value.SigningCertificate is null;
         this.doNotValidate = !options.Value.ValidateSignature;
@@ -134,11 +134,7 @@ public sealed class JwsMessageHandler : DelegatingHandler
         HttpRequestMessage request,
         CancellationToken cancellationToken)
     {
-#if NET
         ArgumentNullException.ThrowIfNull(request);
-#else
-        _ = request ?? throw new ArgumentNullException(nameof(request));
-#endif
 
         if (this.doNotSign)
         {
@@ -188,11 +184,7 @@ public sealed class JwsMessageHandler : DelegatingHandler
         HttpResponseMessage response,
         CancellationToken cancellationToken)
     {
-#if NET
         ArgumentNullException.ThrowIfNull(response);
-#else
-        _ = response ?? throw new ArgumentNullException(nameof(response));
-#endif
 
         if (this.doNotValidate)
         {
@@ -211,7 +203,7 @@ public sealed class JwsMessageHandler : DelegatingHandler
 
             httpData.AppendHeaders(response.Headers, acceptMultivalue: true);
 
-            if (response.Content != null)
+            if (response.Content is not null)
             {
                 httpData.AppendHeaders(response.Content!.Headers, acceptMultivalue: true);
 
@@ -277,16 +269,16 @@ public sealed class JwsMessageHandler : DelegatingHandler
             }
         }
 
-        var entryOptions = new MemoryCacheEntryOptions()
-            .SetPriority(CacheItemPriority.High)
-            .SetSlidingExpiration(TimeSpan.FromMinutes(20d))  // TODO: Make configurable
-            // Average approximate size of the chain; we don't want to calculate the actual size
-            // because touching cert.RawData will cause allocations (!) -- it will return a copy
-            // (Does not have to be an actual size, just a guess is sufficient)
-            .SetSize(5000L);
-
-        _ = cache.Set<X509Certificate2Collection>(cert.Thumbprint, collection, entryOptions);
+        _ = cache.Set(cert.Thumbprint, collection, s_entryOptions);
 
         return collection;
     }
+
+    private static readonly MemoryCacheEntryOptions s_entryOptions = new MemoryCacheEntryOptions()
+        .SetPriority(CacheItemPriority.High)
+        .SetSlidingExpiration(TimeSpan.FromMinutes(20d))
+        // Average approximate size of the chain; we don't want to calculate the actual size
+        // because touching cert.RawData will cause allocations (!) -- it will return a copy
+        // (Does not have to be an actual size, just a guess is sufficient)
+        .SetSize(5000L);
 }

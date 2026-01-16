@@ -69,7 +69,7 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
 #endif
     public bool VerifySignature(T httpData, DateTime checkTime)
     {
-        _ = httpData ?? throw new ArgumentNullException(nameof(httpData));
+        ArgumentNullException.ThrowIfNull(httpData);
 
         IsSignatureVerified = false;
 
@@ -229,7 +229,7 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
             }
         }
 
-        if (oidString == null)
+        if (oidString is null)
             throw new CertificateValidationException("The organization identifier is missing in signing certificate");
 
         var oid = oidString.Split('=');

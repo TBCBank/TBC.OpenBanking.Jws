@@ -61,7 +61,7 @@ public class AlgorithmEcdsa : Algorithm
 
     public AlgorithmEcdsa(X509Certificate2 cert, HashAlgorithmName hashName)
     {
-        if (cert == null) throw new ArgumentNullException(nameof(cert));
+        ArgumentNullException.ThrowIfNull(cert);
         if (!cert.HasPrivateKey) throw new ArgumentException("Certificate should contain private key", nameof(cert));
 
         var privateKey = cert.GetECDsaPrivateKey();
@@ -106,7 +106,7 @@ public class AlgorithmEcdsa : Algorithm
     /// <returns>Signature encoded as Base64Url string</returns>
     public override string Sign(string headerEncoded, string payloadEncoded)
     {
-        if (ecdPrivate == null) throw new CryptographicException("Private key is not set");
+        if (ecdPrivate is null) throw new CryptographicException("Private key is not set");
 
         byte[] data = Encoding.ASCII.GetBytes(headerEncoded + "." + payloadEncoded);
         byte[] signature = SignData(data);
@@ -117,7 +117,7 @@ public class AlgorithmEcdsa : Algorithm
     /// <inheritdoc/>
     public override byte[] SignData(byte[] data)
     {
-        if (ecdPrivate == null) throw new CryptographicException("Private key is not set");
+        if (ecdPrivate is null) throw new CryptographicException("Private key is not set");
 
         byte[] signature;
 
@@ -142,7 +142,7 @@ public class AlgorithmEcdsa : Algorithm
     /// <returns>If the signature is valid.</returns>
     public override bool VerifySignature(string headerEncoded, string payloadEncoded, string signatureEncoded)
     {
-        if (ecdPublic == null) throw new CryptographicException("Public key is not set");
+        if (ecdPublic is null) throw new CryptographicException("Public key is not set");
 
         byte[] data = Encoding.ASCII.GetBytes(headerEncoded + "." + payloadEncoded);
         return ecdPublic.VerifyData(data, signatureEncoded.DecodeBase64Url(), hashName);

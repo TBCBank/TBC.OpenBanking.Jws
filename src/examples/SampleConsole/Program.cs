@@ -20,407 +20,400 @@
  * SOFTWARE.
  */
 
-namespace SampleConsole
+namespace SampleConsole;
+
+using System;
+using System.IO;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using Microsoft.Extensions.Logging;
+using TBC.OpenBanking.Jws;
+
+internal static class Program
 {
-    using System;
-    using System.IO;
-    using System.Security.Cryptography.X509Certificates;
-    using System.Text;
-    using Microsoft.Extensions.Logging;
-    using TBC.OpenBanking.Jws;
-    using TBC.OpenBanking.Jws.Exceptions;
-
-    class Program
+    private static void Main()
     {
-        static void Main(string[] args)
+        var loggerFactory = LoggerFactory.Create(builder =>
         {
-            var loggerFactory = LoggerFactory.Create(builder =>
-            {
-                builder
-                    .AddFilter("", LogLevel.Trace)
-                    .AddConsole();
-            });
+            builder
+                .AddFilter("", LogLevel.Trace)
+                .AddConsole();
+        });
 
-            var publicKeyCertFile = @".\keyandcert.pfx";
-            var privateKeyCertFile = @".\keyandcert.pfx";
-            var password = "";
+        var publicKeyCertFile = @".\keyandcert.pfx";
+        var privateKeyCertFile = @".\keyandcert.pfx";
+        var password = "";
 
+        X509Certificate2 publicKeyCert = X509CertificateLoader.LoadCertificate(X509CertificateLoader.LoadPkcs12FromFile(publicKeyCertFile, password, keyStorageFlags: X509KeyStorageFlags.EphemeralKeySet).Export(X509ContentType.Cert));
+        X509Certificate2 privateKeyCert = X509CertificateLoader.LoadPkcs12FromFile(privateKeyCertFile, password, keyStorageFlags: X509KeyStorageFlags.EphemeralKeySet);
 
-            X509Certificate2 publicKeyCert = new X509Certificate2(new X509Certificate2(File.ReadAllBytes(publicKeyCertFile), password).Export(X509ContentType.Cert));
-            X509Certificate2 privateKeyCert = new X509Certificate2(File.ReadAllBytes(privateKeyCertFile), password);
+        //"RS256"
+        var algorithmName = SupportedAlgorithms.RsaPKCS1Sha256;
 
+        // Request
+        var httpRequestFileName = "HttpRequest-001.txt";
+        var signedHttpRequestFileName = "SignedRequest.txt";
 
-            //"RS256"
-            var algorithmName = SupportedAlgorithms.RsaPKCS1Sha256;
+        SignHttpRequestSample(algorithmName, httpRequestFileName, signedHttpRequestFileName, publicKeyCert, privateKeyCert, loggerFactory);
+        VerifyHttpRequestSignatureSample(signedHttpRequestFileName, loggerFactory);
 
-            // Request
-            var httpRequestFileName = "HttpRequest-001.txt";
-            var signedHttpRequestFileName = "SignedRequest.txt";
+        // Response
+        var httpResponseFileName = "HttpResponse-001.txt";
+        var signedHttpResponseFileName = "SignedResponse.txt";
 
-            SignHttpRequestSample(algorithmName, httpRequestFileName, signedHttpRequestFileName, publicKeyCert, privateKeyCert, loggerFactory);
-            VerifyHttpRequestSignatureSample(signedHttpRequestFileName, loggerFactory);
+        SignHttpResponseSample(algorithmName, httpResponseFileName, signedHttpResponseFileName, publicKeyCert, privateKeyCert, loggerFactory);
+        VerifyHttpResponseSignatureSample(signedHttpResponseFileName, loggerFactory);
 
-            // Response
-            var httpResponseFileName = "HttpResponse-001.txt";
-            var signedHttpResponseFileName = "SignedResponse.txt";
+    }
 
-            SignHttpResponseSample(algorithmName, httpResponseFileName, signedHttpResponseFileName, publicKeyCert, privateKeyCert, loggerFactory);
-            VerifyHttpResponseSignatureSample(signedHttpResponseFileName, loggerFactory);
-
-        }
-
-        private static void SignHttpRequestSample(
-            string algorithmName,
-            string inFileName,
-            string outFileName,
-            X509Certificate2 publicKeyCert,
-            X509Certificate2 privateKeyCert,
-            ILoggerFactory loggerFactory)
+    private static void SignHttpRequestSample(
+        string algorithmName,
+        string inFileName,
+        string outFileName,
+        X509Certificate2 publicKeyCert,
+        X509Certificate2 privateKeyCert,
+        ILoggerFactory loggerFactory)
+    {
+        try
         {
-            try
+            // Get HttpRequestData from HTTP Request
+            var httpData = ReadHttpRequestDataFromString(File.ReadAllText(inFileName));
+
+            // Get certificate chain
+            // If it is possible, better to cache chain, because chain creation is slow
+            X509Certificate2Collection chainCertificates = GetCertificateChain(publicKeyCert);
+
+            // Get ISigner
+            var signer = SupportedAlgorithms.CreateSigner(privateKeyCert, algorithmName);
+
+            // Create HttpSigner.
+            // Need ISigner, certificate with signer's public key and
+            // certificate chain in X509Certificate2Collection
+            var reqSign = new HttpSigner<HttpRequestData>(loggerFactory.CreateLogger<HttpSigner<HttpRequestData>>())
             {
-                // Get HttpRequestData from HTTP Request
-                var httpData = ReadHttpRequestDataFromString(File.ReadAllText(inFileName));
+                Signer = signer,
+                SignerCertificate = publicKeyCert,
+                SignerCertificateChain = chainCertificates
+            };
 
-                // Get certificate chain
-                // If it is possible, better to cache chain, because chain creation is slow
-                X509Certificate2Collection chainCertificates = GetCertificateChain(publicKeyCert);
+            // Create signature
+            reqSign.CreateSignature(httpData);
 
-                // Get ISigner
-                var signer = SupportedAlgorithms.CreateSigner(privateKeyCert, algorithmName);
-
-                // Create HttpSigner.
-                // Need ISigner, certificate with signer's public key and
-                // certificate chain in X509Certificate2Collection
-                var reqSign = new HttpSigner<HttpRequestData>(loggerFactory.CreateLogger<HttpSigner<HttpRequestData>>())
-                {
-                    Signer = signer,
-                    SignerCertificate = publicKeyCert,
-                    SignerCertificateChain = chainCertificates
-                };
-
-                // Create signature
-                reqSign.CreateSignature(httpData);
-
-                if (reqSign.IsSignatureCreated)
-                {
-                    httpData.Headers.Add(HttpMessageData.DigestHeadertName, reqSign.DigestHeaderValue);
-                    httpData.Headers.Add(HttpMessageData.SignatureHeaderName, reqSign.SignatureHeaderValue);
-
-                    WriteHttpRequestDataToFile(httpData, outFileName);
-                }
-            }
-            catch (Exception x)
+            if (reqSign.IsSignatureCreated)
             {
-                Console.Error.WriteLine(x.ToString());
+                httpData.Headers.Add(HttpMessageData.DigestHeadertName, reqSign.DigestHeaderValue);
+                httpData.Headers.Add(HttpMessageData.SignatureHeaderName, reqSign.SignatureHeaderValue);
+
+                WriteHttpRequestDataToFile(httpData, outFileName);
             }
         }
-
-        private static void VerifyHttpRequestSignatureSample(string inFileName, ILoggerFactory loggerFactory)
+        catch (Exception x)
         {
-            try
-            {
-                // Get HttpRequestData from HTTP Request
-                var httpData = ReadHttpRequestDataFromString(File.ReadAllText(inFileName));
-
-                var verifier = new HttpSignatureVerifier<HttpRequestData>(
-                    loggerFactory.CreateLogger<HttpSignatureVerifier<HttpRequestData>>())
-                {
-                    // Disable time check for sample sake
-                    CheckSignatureTimeConstraint = false,
-                    // Disable revocation check  for sample sake
-                    CertificateValidationFlags = new CertificateValidationFlags
-                    {
-                        RevocationMode = X509RevocationMode.NoCheck,
-                        VerificationFlags = X509VerificationFlags.AllFlags
-                    }
-                };
-
-                verifier.VerifySignature(httpData, DateTime.Now);
-            }
-            catch (Exception x)
-            {
-                Console.Error.WriteLine(x.ToString());
-            }
+            Console.Error.WriteLine(x.ToString());
         }
+    }
 
-        private static void SignHttpResponseSample(
-            string algorithmName,
-            string inFileName,
-            string outFileName,
-            X509Certificate2 publicKeyCert,
-            X509Certificate2 privateKeyCert,
-            ILoggerFactory loggerFactory)
+    private static void VerifyHttpRequestSignatureSample(string inFileName, ILoggerFactory loggerFactory)
+    {
+        try
         {
-            try
+            // Get HttpRequestData from HTTP Request
+            var httpData = ReadHttpRequestDataFromString(File.ReadAllText(inFileName));
+
+            var verifier = new HttpSignatureVerifier<HttpRequestData>(
+                loggerFactory.CreateLogger<HttpSignatureVerifier<HttpRequestData>>())
             {
-                // Get HttpRequestData from HTTP Request
-                var httpData = ReadHttpResponseDataFromString(File.ReadAllText(inFileName));
-
-                // Get certificate chain
-                // If it is possible, better to cache chain, because chain creation is slow
-                X509Certificate2Collection chainCertificates = GetCertificateChain(publicKeyCert);
-
-                // Get ISigner
-                var signer = SupportedAlgorithms.CreateSigner(privateKeyCert, algorithmName);
-
-                // Create HttpSigner. Need ISigner, certificate with signer's public key and certificate chain in X509Certificate2Collection
-                var reqSign = new HttpSigner<HttpResponseData>(loggerFactory.CreateLogger<HttpSigner<HttpResponseData>>())
-                {
-                    Signer = signer,
-                    SignerCertificate = publicKeyCert,
-                    SignerCertificateChain = chainCertificates
-                };
-
-                // Create signature
-                reqSign.CreateSignature(httpData);
-
-                if (reqSign.IsSignatureCreated)
-                {
-                    httpData.Headers.Add(HttpMessageData.DigestHeadertName, reqSign.DigestHeaderValue);
-                    httpData.Headers.Add(HttpMessageData.SignatureHeaderName, reqSign.SignatureHeaderValue);
-
-                    WriteHttpResponseDataToFile(httpData, outFileName);
-                }
-            }
-            catch (Exception x)
-            {
-                Console.Error.WriteLine(x.ToString());
-            }
-        }
-
-        private static void VerifyHttpResponseSignatureSample(string inFileName, ILoggerFactory loggerFactory)
-        {
-            try
-            {
-                // Get HttpResponseData from HTTP Response
-                var httpData = ReadHttpResponseDataFromString(File.ReadAllText(inFileName));
-
-                var verifier = new HttpSignatureVerifier<HttpResponseData>(loggerFactory.CreateLogger<HttpSignatureVerifier<HttpResponseData>>())
-                {
-                    // Disable time check for sample sake
-                    CheckSignatureTimeConstraint = false,
-                    // Disable revocation check  for sample sake
-                    CertificateValidationFlags = new CertificateValidationFlags
-                    {
-                        RevocationMode = X509RevocationMode.NoCheck
-                    }
-                };
-
-                verifier.VerifySignature(httpData, DateTime.Now);
-            }
-            catch (Exception x)
-            {
-                Console.Error.WriteLine(x.ToString());
-            }
-        }
-
-        private static HttpResponseData ReadHttpResponseDataFromString(string text)
-        {
-            const string nl = "\r\n";
-
-            HttpResponseData data = new HttpResponseData();
-            var textSpan = text.AsSpan();
-
-            // 0 - status string
-            // 1 - headers
-            // 2 - body
-            int stage = 0;
-            int startIndex = 0;
-            int nlIndex;
-
-            while ((nlIndex = text.IndexOf(nl, startIndex)) != -1)
-            {
-                var span = textSpan.Slice(startIndex, nlIndex - startIndex);
-
-                if (stage == 0)
-                {
-                    var result = span.ToString().Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                    data.StatusCode = result[1].Trim();
-
-                    stage++;
-                }
-                else if (stage == 1) // headers
-                {
-                    if (span.Length == 0)
-                    {
-                        // Supposedly it is a separator between headers and body
-                        // Get body and break
-                        data.Body = Encoding.UTF8.GetBytes(text.Substring(startIndex + 2));
-                        break;
-                    }
-                    else
-                    {
-                        var indexOfColon = span.IndexOf(':');
-                        var headerName = span.Slice(0, indexOfColon);
-                        var headerValue = span.Slice(indexOfColon + 1).Trim();
-
-                        data.AddHeader(headerName.ToString(), headerValue.ToString());
-                    }
-
-                }
-
-                startIndex = nlIndex + 2; // length of "\r\n"
-            }
-
-            return data;
-        }
-
-        private static void WriteHttpResponseDataToFile(HttpResponseData d, string fileName)
-        {
-            const string nl = "\r\n";
-            var sb = new StringBuilder();
-
-            System.Net.HttpStatusCode x = Enum.Parse<System.Net.HttpStatusCode>(d.StatusCode);
-
-            sb.Append($"HTTP/1.x {d.StatusCode} {x}").Append(nl);
-
-            // Headers
-            foreach (var h in d.Headers)
-            {
-                sb.Append($"{h.Key}: {h.Value}").Append(nl);
-            }
-
-            sb.Append(nl);
-
-            // Body
-            sb.Append(new UTF8Encoding().GetString(d.Body));
-
-            File.WriteAllText(fileName, sb.ToString());
-        }
-
-        private static X509Certificate2Collection GetCertificateChain(X509Certificate2 cert)
-        {
-            var collection = new X509Certificate2Collection();
-
-            using (var chain = new X509Chain())
-            {
-                chain.ChainPolicy = new X509ChainPolicy()
+                // Disable time check for sample sake
+                CheckSignatureTimeConstraint = false,
+                // Disable revocation check  for sample sake
+                CertificateValidationFlags = new CertificateValidationFlags
                 {
                     RevocationMode = X509RevocationMode.NoCheck,
-                    VerificationFlags = X509VerificationFlags.AllFlags,
-                };
-
-                chain.Build(cert);
-                foreach (var status in chain.ChainStatus)
-                {
-                    if (status.Status != X509ChainStatusFlags.NoError)
-                    {
-                        // Keep in mind that in real application, in most cases bad chain means bad certificate.
-                        Console.Error.WriteLine($"Warning: Chain build error -- {status.StatusInformation}");
-                    }
+                    VerificationFlags = X509VerificationFlags.AllFlags
                 }
+            };
 
-                int index = 0;
-                foreach (var element in chain.ChainElements)
-                {
-                    index++;
-                    // Skip first (signing cert) and last (root cert)
-                    if (index == 1 || index == chain.ChainElements.Count)
-                        continue;
-
-                    collection.Add(element.Certificate);
-                }
-            }
-
-            return collection;
+            verifier.VerifySignature(httpData, DateTime.Now);
         }
-
-        /// <summary>
-        /// Parse HTTP request from <paramref name="text"/> and creats HttpRequestData object
-        /// </summary>
-        /// <param name="text"></param>
-        /// <returns>HttpRequestData object</returns>
-        private static HttpRequestData ReadHttpRequestDataFromString(string text)
+        catch (Exception x)
         {
-            const string nl = "\r\n";
+            Console.Error.WriteLine(x.ToString());
+        }
+    }
 
-            HttpRequestData data = new HttpRequestData();
-            var textSpan = text.AsSpan();
+    private static void SignHttpResponseSample(
+        string algorithmName,
+        string inFileName,
+        string outFileName,
+        X509Certificate2 publicKeyCert,
+        X509Certificate2 privateKeyCert,
+        ILoggerFactory loggerFactory)
+    {
+        try
+        {
+            // Get HttpRequestData from HTTP Request
+            var httpData = ReadHttpResponseDataFromString(File.ReadAllText(inFileName));
 
-            // 0 - request target
-            // 1 - host
-            // 2 - headers
-            // 3 - body
-            int stage = 0;
-            int startIndex = 0;
-            int nlIndex;
+            // Get certificate chain
+            // If it is possible, better to cache chain, because chain creation is slow
+            X509Certificate2Collection chainCertificates = GetCertificateChain(publicKeyCert);
 
-            string query = string.Empty;
+            // Get ISigner
+            var signer = SupportedAlgorithms.CreateSigner(privateKeyCert, algorithmName);
 
-            while ((nlIndex = text.IndexOf(nl, startIndex)) != -1)
+            // Create HttpSigner. Need ISigner, certificate with signer's public key and certificate chain in X509Certificate2Collection
+            var reqSign = new HttpSigner<HttpResponseData>(loggerFactory.CreateLogger<HttpSigner<HttpResponseData>>())
             {
-                var span = textSpan.Slice(startIndex, nlIndex - startIndex);
+                Signer = signer,
+                SignerCertificate = publicKeyCert,
+                SignerCertificateChain = chainCertificates
+            };
 
-                if (stage == 0)
+            // Create signature
+            reqSign.CreateSignature(httpData);
+
+            if (reqSign.IsSignatureCreated)
+            {
+                httpData.Headers.Add(HttpMessageData.DigestHeadertName, reqSign.DigestHeaderValue);
+                httpData.Headers.Add(HttpMessageData.SignatureHeaderName, reqSign.SignatureHeaderValue);
+
+                WriteHttpResponseDataToFile(httpData, outFileName);
+            }
+        }
+        catch (Exception x)
+        {
+            Console.Error.WriteLine(x.ToString());
+        }
+    }
+
+    private static void VerifyHttpResponseSignatureSample(string inFileName, ILoggerFactory loggerFactory)
+    {
+        try
+        {
+            // Get HttpResponseData from HTTP Response
+            var httpData = ReadHttpResponseDataFromString(File.ReadAllText(inFileName));
+
+            var verifier = new HttpSignatureVerifier<HttpResponseData>(loggerFactory.CreateLogger<HttpSignatureVerifier<HttpResponseData>>())
+            {
+                // Disable time check for sample sake
+                CheckSignatureTimeConstraint = false,
+                // Disable revocation check  for sample sake
+                CertificateValidationFlags = new CertificateValidationFlags
                 {
-                    var result = span.ToString().Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                    data.Method = result[0].Trim();
-                    query = result[1].Trim();
-                    stage++;
+                    RevocationMode = X509RevocationMode.NoCheck
                 }
-                else if (stage == 1) // host
+            };
+
+            verifier.VerifySignature(httpData, DateTime.Now);
+        }
+        catch (Exception x)
+        {
+            Console.Error.WriteLine(x.ToString());
+        }
+    }
+
+    private static HttpResponseData ReadHttpResponseDataFromString(string text)
+    {
+        const string nl = "\r\n";
+
+        HttpResponseData data = new();
+        var textSpan = text.AsSpan();
+
+        // 0 - status string
+        // 1 - headers
+        // 2 - body
+        int stage = 0;
+        int startIndex = 0;
+        int nlIndex;
+
+        while ((nlIndex = text.IndexOf(nl, startIndex)) != -1)
+        {
+            var span = textSpan[startIndex..nlIndex];
+
+            if (stage == 0)
+            {
+                var result = span.ToString().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                data.StatusCode = result[1].Trim();
+
+                stage++;
+            }
+            else if (stage == 1) // headers
+            {
+                if (span.Length == 0)
+                {
+                    // Supposedly it is a separator between headers and body
+                    // Get body and break
+                    data.Body = Encoding.UTF8.GetBytes(text[(startIndex + 2)..]);
+                    break;
+                }
+                else
                 {
                     var indexOfColon = span.IndexOf(':');
-                    var headerName = span.Slice(0, indexOfColon);
-                    var headerValue = span.Slice(indexOfColon + 1).Trim();
-                    data.Uri = new Uri($"http://{headerValue.ToString()}/{query.TrimStart('/')}");
+                    var headerName = span[..indexOfColon];
+                    var headerValue = span[(indexOfColon + 1)..].Trim();
 
                     data.AddHeader(headerName.ToString(), headerValue.ToString());
-
-                    stage++;
                 }
-                else if (stage == 2) // headers
-                {
-                    if (span.Length == 0)
-                    {
-                        // Supposedly it is a separator between headers and body
-                        // Get body and break
-                        data.Body = Encoding.UTF8.GetBytes(text.Substring(startIndex + 2));
-                        break;
-                    }
-                    else
-                    {
-                        var indexOfColon = span.IndexOf(':');
-                        var headerName = span.Slice(0, indexOfColon);
-                        var headerValue = span.Slice(indexOfColon + 1).Trim();
-
-                        data.AddHeader(headerName.ToString(), headerValue.ToString());
-                    }
-
-                }
-
-                startIndex = nlIndex + 2; // length of "\r\n"
             }
 
-            return data;
+            startIndex = nlIndex + 2; // length of "\r\n"
         }
 
-        private static void WriteHttpRequestDataToFile(HttpRequestData d, string fileName)
+        return data;
+    }
+
+    private static void WriteHttpResponseDataToFile(HttpResponseData d, string fileName)
+    {
+        const string nl = "\r\n";
+        var sb = new StringBuilder();
+
+        var x = Enum.Parse<System.Net.HttpStatusCode>(d.StatusCode);
+
+        sb.Append($"HTTP/1.x {d.StatusCode} {x}").Append(nl);
+
+        // Headers
+        foreach (var h in d.Headers)
         {
-            string nl = "\r\n";
-            var sb = new StringBuilder();
+            sb.Append($"{h.Key}: {h.Value}").Append(nl);
+        }
 
-            sb.Append($"{d.Method} {d.Uri.PathAndQuery}").Append(nl)
-                .Append($"host: {d.Uri.Host}")
-                .Append(nl);
+        sb.Append(nl);
 
-            // Headers
-            foreach (var h in d.Headers)
+        // Body
+        sb.Append(Encoding.UTF8.GetString(d.Body));
+
+        File.WriteAllText(fileName, sb.ToString());
+    }
+
+    private static X509Certificate2Collection GetCertificateChain(X509Certificate2 cert)
+    {
+        var collection = new X509Certificate2Collection();
+
+        using (var chain = new X509Chain())
+        {
+            chain.ChainPolicy = new X509ChainPolicy()
             {
-                if (string.Compare(h.Key, "Host", true) == 0)
+                RevocationMode = X509RevocationMode.NoCheck,
+                VerificationFlags = X509VerificationFlags.AllFlags,
+            };
+
+            chain.Build(cert);
+            foreach (var status in chain.ChainStatus)
+            {
+                if (status.Status != X509ChainStatusFlags.NoError)
+                {
+                    // Keep in mind that in real application, in most cases bad chain means bad certificate.
+                    Console.Error.WriteLine($"Warning: Chain build error -- {status.StatusInformation}");
+                }
+            }
+
+            int index = 0;
+            foreach (var element in chain.ChainElements)
+            {
+                index++;
+                // Skip first (signing cert) and last (root cert)
+                if (index == 1 || index == chain.ChainElements.Count)
                     continue;
 
-                sb.Append($"{h.Key}: {h.Value}").Append(nl);
+                collection.Add(element.Certificate);
             }
-
-            sb.Append(nl);
-
-            // Body
-            sb.Append(new UTF8Encoding().GetString(d.Body));
-
-            File.WriteAllText(fileName, sb.ToString());
         }
 
+        return collection;
+    }
+
+    /// <summary>
+    /// Parse HTTP request from <paramref name="text"/> and creats HttpRequestData object
+    /// </summary>
+    /// <param name="text"></param>
+    /// <returns>HttpRequestData object</returns>
+    private static HttpRequestData ReadHttpRequestDataFromString(string text)
+    {
+        const string nl = "\r\n";
+
+        HttpRequestData data = new();
+        var textSpan = text.AsSpan();
+
+        // 0 - request target
+        // 1 - host
+        // 2 - headers
+        // 3 - body
+        int stage = 0;
+        int startIndex = 0;
+        int nlIndex;
+
+        string query = string.Empty;
+
+        while ((nlIndex = text.IndexOf(nl, startIndex)) != -1)
+        {
+            var span = textSpan[startIndex..nlIndex];
+
+            if (stage == 0)
+            {
+                var result = span.ToString().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                data.Method = result[0].Trim();
+                query = result[1].Trim();
+                stage++;
+            }
+            else if (stage == 1) // host
+            {
+                var indexOfColon = span.IndexOf(':');
+                var headerName = span[..indexOfColon];
+                var headerValue = span[(indexOfColon + 1)..].Trim();
+                data.Uri = new Uri($"http://{headerValue}/{query.TrimStart('/')}");
+
+                data.AddHeader(headerName.ToString(), headerValue.ToString());
+
+                stage++;
+            }
+            else if (stage == 2) // headers
+            {
+                if (span.Length == 0)
+                {
+                    // Supposedly it is a separator between headers and body
+                    // Get body and break
+                    data.Body = Encoding.UTF8.GetBytes(text[(startIndex + 2)..]);
+                    break;
+                }
+                else
+                {
+                    var indexOfColon = span.IndexOf(':');
+                    var headerName = span[..indexOfColon];
+                    var headerValue = span[(indexOfColon + 1)..].Trim();
+
+                    data.AddHeader(headerName.ToString(), headerValue.ToString());
+                }
+            }
+
+            startIndex = nlIndex + 2; // length of "\r\n"
+        }
+
+        return data;
+    }
+
+    private static void WriteHttpRequestDataToFile(HttpRequestData d, string fileName)
+    {
+        string nl = "\r\n";
+        var sb = new StringBuilder();
+
+        sb.Append($"{d.Method} {d.Uri.PathAndQuery}").Append(nl)
+            .Append($"host: {d.Uri.Host}")
+            .Append(nl);
+
+        // Headers
+        foreach (var h in d.Headers)
+        {
+            if (string.Compare(h.Key, "Host", true) == 0)
+                continue;
+
+            sb.Append($"{h.Key}: {h.Value}").Append(nl);
+        }
+
+        sb.Append(nl);
+
+        // Body
+        sb.Append(Encoding.UTF8.GetString(d.Body));
+
+        File.WriteAllText(fileName, sb.ToString());
     }
 }

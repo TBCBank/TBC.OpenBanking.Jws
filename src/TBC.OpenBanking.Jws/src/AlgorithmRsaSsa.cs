@@ -78,8 +78,8 @@ public class AlgorithmRsaSsa : Algorithm
 
     public AlgorithmRsaSsa(X509Certificate2 cert, HashAlgorithmName hashName, RSASignaturePadding padding)
     {
-        if (cert == null) throw new ArgumentNullException(nameof(cert));
-        if (padding == null) throw new ArgumentNullException(nameof(padding));
+        ArgumentNullException.ThrowIfNull(cert);
+        ArgumentNullException.ThrowIfNull(padding);
 
         var privateKey = cert.GetRSAPrivateKey();
         var publicKey = cert.GetRSAPublicKey();
@@ -115,7 +115,7 @@ public class AlgorithmRsaSsa : Algorithm
     /// <returns>Signature encoded as Base64Url string</returns>
     public override string Sign(string headerEncoded, string payloadEncoded)
     {
-        if (rsaPrivate == null) throw new CryptographicException("Private key is not set");
+        if (rsaPrivate is null) throw new CryptographicException("Private key is not set");
 
         byte[] data = Encoding.ASCII.GetBytes(headerEncoded + "." + payloadEncoded);
         byte[] signature = SignData(data);
@@ -126,7 +126,7 @@ public class AlgorithmRsaSsa : Algorithm
     /// <inheritdoc/>
     public override byte[] SignData(byte[] data)
     {
-        if (rsaPrivate == null) throw new CryptographicException("Private key is not set");
+        if (rsaPrivate is null) throw new CryptographicException("Private key is not set");
 
         byte[] signature;
 
@@ -145,7 +145,7 @@ public class AlgorithmRsaSsa : Algorithm
     /// <inheritdoc/>
     public override bool VerifySignature(string headerEncoded, string payloadEncoded, string signatureEncoded)
     {
-        if (rsaPublic == null) throw new CryptographicException("Public key is not set");
+        if (rsaPublic is null) throw new CryptographicException("Public key is not set");
 
         byte[] TokenBin = Encoding.ASCII.GetBytes(headerEncoded + "." + payloadEncoded);
         return rsaPublic.VerifyData(TokenBin, signatureEncoded.DecodeBase64Url(), hashName, padding);
@@ -156,7 +156,7 @@ public class AlgorithmRsaSsa : Algorithm
     {
         rsaPrivate?.Dispose();
 
-        if (rsaPublic != null && rsaPublic != rsaPrivate)
+        if (rsaPublic is not null && rsaPublic != rsaPrivate)
         {
             rsaPublic.Dispose();
         }

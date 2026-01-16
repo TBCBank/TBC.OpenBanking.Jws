@@ -33,10 +33,7 @@ internal static class WebEncoders
     /// </remarks>
     public static byte[] Base64UrlDecode(string input)
     {
-        if (input == null)
-        {
-            throw new ArgumentNullException(nameof(input));
-        }
+        ArgumentNullException.ThrowIfNull(input);
 
         return Base64UrlDecode(input, offset: 0, count: input.Length);
     }
@@ -54,10 +51,7 @@ internal static class WebEncoders
     /// </remarks>
     public static byte[] Base64UrlDecode(string input, int offset, int count)
     {
-        if (input == null)
-        {
-            throw new ArgumentNullException(nameof(input));
-        }
+        ArgumentNullException.ThrowIfNull(input);
 
         ValidateParameters(input.Length, nameof(input), offset, count);
 
@@ -94,21 +88,12 @@ internal static class WebEncoders
     /// </remarks>
     public static byte[] Base64UrlDecode(string input, int offset, char[] buffer, int bufferOffset, int count)
     {
-        if (input == null)
-        {
-            throw new ArgumentNullException(nameof(input));
-        }
-
-        if (buffer == null)
-        {
-            throw new ArgumentNullException(nameof(buffer));
-        }
+        ArgumentNullException.ThrowIfNull(input);
+        ArgumentNullException.ThrowIfNull(buffer);
 
         ValidateParameters(input.Length, nameof(input), offset, count);
-        if (bufferOffset < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(bufferOffset));
-        }
+
+        ArgumentOutOfRangeException.ThrowIfNegative(bufferOffset);
 
         if (count == 0)
         {
@@ -173,10 +158,7 @@ internal static class WebEncoders
     /// </returns>
     public static int GetArraySizeRequiredToDecode(int count)
     {
-        if (count < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(count));
-        }
+        ArgumentOutOfRangeException.ThrowIfNegative(count);
 
         if (count == 0)
         {
@@ -195,10 +177,7 @@ internal static class WebEncoders
     /// <returns>The base64url-encoded form of <paramref name="input"/>.</returns>
     public static string Base64UrlEncode(byte[] input)
     {
-        if (input is null)
-        {
-            throw new ArgumentNullException(nameof(input));
-        }
+        ArgumentNullException.ThrowIfNull(input);
 
         return Base64UrlEncode(input, offset: 0, count: input.Length);
     }
@@ -212,10 +191,7 @@ internal static class WebEncoders
     /// <returns>The base64url-encoded form of <paramref name="input"/>.</returns>
     public static string Base64UrlEncode(byte[] input, int offset, int count)
     {
-        if (input is null)
-        {
-            throw new ArgumentNullException(nameof(input));
-        }
+        ArgumentNullException.ThrowIfNull(input);
 
         ValidateParameters(input.Length, nameof(input), offset, count);
 
@@ -255,21 +231,12 @@ internal static class WebEncoders
     /// </returns>
     public static int Base64UrlEncode(byte[] input, int offset, char[] output, int outputOffset, int count)
     {
-        if (input == null)
-        {
-            throw new ArgumentNullException(nameof(input));
-        }
-
-        if (output == null)
-        {
-            throw new ArgumentNullException(nameof(output));
-        }
+        ArgumentNullException.ThrowIfNull(input);
+        ArgumentNullException.ThrowIfNull(output);
 
         ValidateParameters(input.Length, nameof(input), offset, count);
-        if (outputOffset < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(outputOffset));
-        }
+
+        ArgumentOutOfRangeException.ThrowIfNegative(outputOffset);
 
         var arraySizeRequired = GetArraySizeRequiredToEncode(count);
         if (output.Length - outputOffset < arraySizeRequired)
@@ -345,7 +312,7 @@ internal static class WebEncoders
     [System.Runtime.CompilerServices.SkipLocalsInit]
     public static string Base64UrlEncode(ReadOnlySpan<byte> input)
     {
-        const int StackAllocThreshold = 128;
+        const int StackAllocThreshold = 200;
 
         if (input.IsEmpty)
         {
@@ -362,7 +329,7 @@ internal static class WebEncoders
         var numBase64Chars = Base64UrlEncode(input, buffer);
         var base64Url = new string(buffer[..numBase64Chars]);
 
-        if (bufferToReturnToPool != null)
+        if (bufferToReturnToPool is not null)
         {
             ArrayPool<char>.Shared.Return(bufferToReturnToPool);
         }
@@ -413,25 +380,15 @@ internal static class WebEncoders
             0 => 0,
             2 => 2,
             3 => 1,
-            _ => throw new FormatException(
-                 string.Format(
-                     CultureInfo.CurrentCulture,
-                     EncoderResources.WebEncoders_MalformedInput,
-                     inputLength)),
+            _ => throw new FormatException(string.Format(CultureInfo.CurrentCulture,
+                EncoderResources.WebEncoders_MalformedInput, inputLength)),
         };
     }
 
     private static void ValidateParameters(int bufferLength, string inputName, int offset, int count)
     {
-        if (offset < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(offset));
-        }
-
-        if (count < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(count));
-        }
+        ArgumentOutOfRangeException.ThrowIfNegative(offset);
+        ArgumentOutOfRangeException.ThrowIfNegative(count);
 
         if (bufferLength - offset < count)
         {

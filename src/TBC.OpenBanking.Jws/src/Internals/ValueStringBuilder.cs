@@ -193,7 +193,7 @@ internal ref struct ValueStringBuilder
         int remaining = _pos - index;
         _chars.Slice(index, remaining).CopyTo(_chars.Slice(index + count));
         s
-#if !NETCOREAPP
+#if !NET
             .AsSpan()
 #endif
             .CopyTo(_chars.Slice(index));
@@ -324,7 +324,7 @@ internal ref struct ValueStringBuilder
         return _chars.Slice(origPos, length);
     }
 
-#if NET6_0_OR_GREATER
+#if NET
     internal void AppendSpanFormattable<T>(T value, string? format = null, IFormatProvider? provider = null)
         where T : ISpanFormattable
     {
@@ -339,7 +339,7 @@ internal ref struct ValueStringBuilder
     }
 #endif
 
-#if NET7_0_OR_GREATER
+#if NET
 
     // Copied from StringBuilder, can't be done via generic extension
     // as ValueStringBuilder is a ref struct and cannot be used in a generic.

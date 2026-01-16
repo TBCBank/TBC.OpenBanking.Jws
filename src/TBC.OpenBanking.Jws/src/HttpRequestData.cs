@@ -69,9 +69,9 @@ public class HttpRequestData : HttpMessageData
     [SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "Intentional")]
     public override string ComposeHeadersForSignature(IList<string> headers, IDictionary<string, string> additionalHeaders = null)
     {
-        _ = headers ?? throw new ArgumentNullException(nameof(headers));
+        ArgumentNullException.ThrowIfNull(headers);
 
-        using var sb = new ValueStringBuilder(initialCapacity: 512);
+        using var sb = new ValueStringBuilder(stackalloc char[512]);
         foreach (var hn in headers)
         {
             if (sb.Length > 0)

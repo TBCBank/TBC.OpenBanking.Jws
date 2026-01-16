@@ -53,9 +53,10 @@ public class CertificateValidationException : JwsException
     {
         this.SetHResult(ErrorCode);
 
-        if (statuses != null)
+        if (statuses is not null)
         {
-            using var sb = new ValueStringBuilder(initialCapacity: 100);
+#pragma warning disable CA2000, S2930  // ToString calls Dispose
+            var sb = new ValueStringBuilder(initialCapacity: 100);
             sb.Append(message);
             sb.Append(". ");
 
@@ -71,9 +72,12 @@ public class CertificateValidationException : JwsException
             }
 
             this.message = sb.ToString();
+#pragma warning restore CA2000, S2930
         }
         else
+        {
             this.message = message;
+        }
     }
 
     public override string Message { get => this.message; }

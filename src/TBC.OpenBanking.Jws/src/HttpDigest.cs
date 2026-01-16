@@ -102,14 +102,14 @@ internal class HttpDigest
 
     internal string CalculateDigest(byte[] body)
     {
-        if (body is null) throw new ArgumentNullException(nameof(body));
+        ArgumentNullException.ThrowIfNull(body);
 
         byte[] hashValue = hashAlgorithm.ComputeHash(body);
         string hashEncoded = Convert.ToBase64String(hashValue);
         return $"{digestPrefix}={hashEncoded}";
     }
 
-#if NETCOREAPP3_1_OR_GREATER
+#if NET
 
     internal string CalculateDigest(ReadOnlySpan<byte> body)
     {

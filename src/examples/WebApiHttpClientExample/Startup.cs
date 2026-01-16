@@ -30,18 +30,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using TBC.OpenBanking.Jws;
 using TBC.OpenBanking.Jws.Http;
 
-public class Startup
+public class Startup(IConfiguration configuration)
 {
-    public Startup(IConfiguration configuration)
-    {
-        Configuration = configuration;
-    }
-
-    public IConfiguration Configuration { get; }
+    public IConfiguration Configuration { get; } = configuration;
 
     public void ConfigureServices(IServiceCollection services)
     {
@@ -80,9 +75,9 @@ public class Startup
                 {
                     AutomaticDecompression = DecompressionMethods.All,
                     UseCookies = false,
+                    ClientCertificateOptions = ClientCertificateOption.Manual
                 };
 
-                handler.ClientCertificateOptions = ClientCertificateOption.Manual;
                 handler.ClientCertificates.Add(new X509CertificateLocator(
                     new Uri(this.Configuration["OpenBankingConnection:ClientCertificate"])).GetCertificate());
 

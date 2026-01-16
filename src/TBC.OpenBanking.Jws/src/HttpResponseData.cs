@@ -62,9 +62,9 @@ public class HttpResponseData : HttpMessageData
 
     public override string ComposeHeadersForSignature(IList<string> headers, IDictionary<string, string> additionalHeaders = null)
     {
-        _ = headers ?? throw new ArgumentNullException(nameof(headers));
+        ArgumentNullException.ThrowIfNull(headers);
 
-        using var sb = new ValueStringBuilder(initialCapacity: 512);
+        using var sb = new ValueStringBuilder(stackalloc char[512]);
         foreach (var hn in headers)
         {
             if (sb.Length > 0)
@@ -79,7 +79,7 @@ public class HttpResponseData : HttpMessageData
             else
             {
                 if (!Headers.TryGetValue(hn, out string headerValue)
-                    && (additionalHeaders == null || !additionalHeaders.TryGetValue(hn, out headerValue)))
+                    && (additionalHeaders is null || !additionalHeaders.TryGetValue(hn, out headerValue)))
                 {
                     throw new HeaderMissingException($"Can't find header '{hn}'");
                 }

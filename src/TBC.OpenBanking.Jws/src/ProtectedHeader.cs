@@ -48,7 +48,7 @@ public class ProtectedHeader
         [SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase", Justification = "Intentional")]
         public void AddParameter(string value)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
+            ArgumentNullException.ThrowIfNull(value);
 
             if (value.Length != 0)
             {
@@ -116,7 +116,7 @@ public class ProtectedHeader
     /// <returns></returns>
     public string EncodeCertificate(X509Certificate2 cert)
     {
-        _ = cert ?? throw new ArgumentNullException(nameof(cert));
+        ArgumentNullException.ThrowIfNull(cert);
 
         byte[] rawData = cert.Export(X509ContentType.Cert);
         return Convert.ToBase64String(rawData);
@@ -134,7 +134,7 @@ public class ProtectedHeader
         EncodedCertificates.Clear();
         EncodedCertificates.Add(EncodeCertificate(signerCertificate));
 
-        if (chainCertificates != null)
+        if (chainCertificates is not null)
         {
             foreach (var cert in chainCertificates)
             {

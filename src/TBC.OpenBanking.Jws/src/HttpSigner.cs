@@ -91,10 +91,10 @@ public class HttpSigner<T> where T : HttpMessageData
 #endif
     public bool CreateSignature(T httpData)
     {
-        if (httpData == null) throw new ArgumentNullException(nameof(httpData));
-        if (Signer == null) throw new InvalidOperationException($"Property not set '{nameof(Sign)}'");
-        if (SignerCertificate == null) throw new InvalidOperationException($"Property not set '{nameof(SignerCertificate)}'");
-        if (SignerCertificateChain == null) throw new InvalidOperationException($"Property not set '{nameof(SignerCertificateChain)}'");
+        ArgumentNullException.ThrowIfNull(httpData);
+        if (Signer is null) throw new InvalidOperationException($"Property not set '{nameof(Sign)}'");
+        if (SignerCertificate is null) throw new InvalidOperationException($"Property not set '{nameof(SignerCertificate)}'");
+        if (SignerCertificateChain is null) throw new InvalidOperationException($"Property not set '{nameof(SignerCertificateChain)}'");
 
         Reset();
 
