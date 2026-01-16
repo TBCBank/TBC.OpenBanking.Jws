@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net8.0;net9.0</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;net8.0;net9.0;net10.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <IsPackable>true</IsPackable>
         <PackageId>TBC.OpenBanking.Jws.Http</PackageId>
@@ -9,6 +9,7 @@
         <Description>JSON Web Signature (JWS) client-side extensions for .NET</Description>
         <PackageTags>jws;openapi;openbanking;signature;aspnet;aspnetcore</PackageTags>
         <PackageIcon>icon.png</PackageIcon>
+        <Authors>george.chakhidze</Authors>
         <IncludeSymbols>true</IncludeSymbols>
         <IncludeContentInPack>true</IncludeContentInPack>
         <RepositoryUrl>https://github.com/TBCBank/TBC.OpenBanking.Jws</RepositoryUrl>
@@ -27,9 +28,7 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0')) ">
-        <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
-        <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
-        <EnableAotAnalyzer>true</EnableAotAnalyzer>
+        <IsAotCompatible>true</IsAotCompatible>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(TF_BUILD)' == 'True' or '$(GITHUB_ACTIONS)' == 'true' ">
@@ -49,28 +48,28 @@
     <ItemGroup>
         <PackageReference Include="Meziantou.Analyzer" Version="2.*">
             <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="4.*">
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="5.*">
             <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="SonarAnalyzer.CSharp" Version="10.*">
             <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
 
     <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
-        <PackageReference Include="MinVer" Version="6.*">
+        <PackageReference Include="MinVer" Version="7.*">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.*" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.*" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.*" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.*" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
@@ -81,6 +80,11 @@
     <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
         <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.*" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.*" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net10.0' ">
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.*" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.*" />
     </ItemGroup>
 
     <ItemGroup>
@@ -96,6 +100,10 @@
             <_Parameter1>false</_Parameter1>
             <_Parameter1_IsLiteral>true</_Parameter1_IsLiteral>
         </AssemblyAttribute>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="..\..\TBC.OpenBanking.Jws\src\Internals\ExceptionPolyfills.cs" Link="ExceptionPolyfills.cs" Visible="false" />
     </ItemGroup>
 
     <ItemGroup>
