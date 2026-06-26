@@ -40,26 +40,4 @@ dotnet_diagnostic.CA1303.severity = none
 
 dotnet_style_qualification_for_field = false:none
 dotnet_style_qualification_for_property = false:none
-dotnet_style_qualification_for_event = false:none
-dotnet_style_qualification_for_method = false:none
-
-[*.json]
-charset = utf-8
-indent_style = space
-indent_size = 4
-insert_final_newline = true
-
-[*.{xml,config}]
-charset = utf-8-bom
-indent_style = space
-indent_size = 4
-insert_final_newline = true
-
-# Xml project files
-[*.{csproj,proj}]
-charset = utf-8
-indent_size = 4
-
-# PowerShell files
-[*.{ps1,psd1,psm1}]
-charset = latin1
+dotnet_style_qualification_for_event = f
