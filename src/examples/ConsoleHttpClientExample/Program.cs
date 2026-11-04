@@ -39,6 +39,7 @@ internal static class Program
         if (args.Length == 0)
         {
             Console.WriteLine("Please specify certificate location");
+            Console.WriteLine("Set JWS_EXAMPLE_BASE_URL to an HTTPS endpoint before running this example.");
 
             Console.WriteLine("\nExamples of certificate location URLs");
             Console.WriteLine("cert:///CurrentUser/My/C594DAD7CBCBD6CC9704F4F463EABE68980F640F");
@@ -51,6 +52,13 @@ internal static class Program
         else
         {
             var certLocation = args[0];
+            var baseUrl = Environment.GetEnvironmentVariable("JWS_EXAMPLE_BASE_URL");
+            if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var baseAddress) ||
+                baseAddress.Scheme != Uri.UriSchemeHttps)
+            {
+                throw new InvalidOperationException(
+                    "JWS_EXAMPLE_BASE_URL must be an absolute HTTPS URI. No default external endpoint is configured.");
+            }
 
             await Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
@@ -61,25 +69,13 @@ internal static class Program
                     {
                         options.AlgorithmName = SupportedAlgorithms.RsaPKCS1Sha256;
 
-                        //
-                        // Disable all validations because we're calling httpbin.org,
-                        // which does not sign responses with JWS; it just returns what we've sent:
-                        //
-                        options.CheckCertificateRevocationList = false;
-                        options.CheckSignatureTimeConstraint = false;
-                        options.ValidateSignature = false;
-
                         Uri certUrl = new(certLocation);
                         options.SigningCertificate = new X509CertificateLocator(certUrl);
                     });
 
                     services.AddHttpClient(name: "ExampleClient", configureClient: (client) =>
                     {
-                        //
-                        // httpbin.org is a free service used to test HTTP request/responses;
-                        // It simply reflects the request you've sent back to you:
-                        //
-                        client.BaseAddress = new("https://httpbin.org/");
+                        client.BaseAddress = baseAddress;
                     })
                     .AddHttpMessageHandler(services =>
                     {
