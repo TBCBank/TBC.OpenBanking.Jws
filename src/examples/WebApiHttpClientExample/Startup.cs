@@ -45,6 +45,9 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
+        var baseAddress = GetRequiredHttpsUri("OpenBankingConnection:BaseUrl");
+        var clientCertificateUri = GetRequiredUri("OpenBankingConnection:ClientCertificate");
+
         //
         // Read JWS options from IConfiguration
         //
@@ -72,7 +75,7 @@ public class Startup
         //
         services.AddHttpClient(name: "TBC.OpenBanking.Client", configureClient: (client) =>
         {
-            client.BaseAddress = new Uri(this.Configuration["OpenBankingConnection:BaseUrl"]);
+            client.BaseAddress = baseAddress;
         })
             .ConfigurePrimaryHttpMessageHandler((svcs) =>
             {
@@ -84,15 +87,35 @@ public class Startup
 
                 handler.ClientCertificateOptions = ClientCertificateOption.Manual;
                 handler.ClientCertificates.Add(new X509CertificateLocator(
-                    new Uri(this.Configuration["OpenBankingConnection:ClientCertificate"])).GetCertificate());
-
-                // DONT use this in production code:
-                handler.ServerCertificateCustomValidationCallback =
-                    HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+                    clientCertificateUri).GetCertificate());
 
                 return handler;
             })
             .AddHttpMessageHandler<JwsMessageHandler>();  // Handler to sign requests and validate responses
+    }
+
+    private Uri GetRequiredHttpsUri(string configurationKey)
+    {
+        var value = Configuration[configurationKey];
+        if (!Uri.TryCreate(value, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttps)
+        {
+            throw new InvalidOperationException(
+                $"{configurationKey} must be an absolute HTTPS URI supplied through local configuration.");
+        }
+
+        return uri;
+    }
+
+    private Uri GetRequiredUri(string configurationKey)
+    {
+        var value = Configuration[configurationKey];
+        if (!Uri.TryCreate(value, UriKind.Absolute, out var uri))
+        {
+            throw new InvalidOperationException(
+                $"{configurationKey} must be supplied through local configuration.");
+        }
+
+        return uri;
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

@@ -1,66 +1,34 @@
+# TBC.OpenBanking.Jws
 
+.NET library for signing and verifying HTTP messages with JWS (detached signatures) for TBC Bank Open Banking APIs.
 
-# Nita123 Sovereign Registry  
-### Operated by Ivane Shaorshadze — Sovereign System Architect
+- `src/TBC.OpenBanking.Jws` – core signing/verification library
+- `src/TBC.OpenBanking.Jws.Http` – `HttpClient` message handler and certificate locator
+- `src/examples` – sample apps (sample certificates only; never use them in production)
 
-This repository is part of a sovereign, verifiable, and publicly inspectable registry architecture.  
-Every component, every timestamp, every seal originates from the creator: **Ivane Shaorshadze**.
+## Build
 
----
+```
+dotnet build TBC.OpenBanking.Jws.slnx
+```
 
-## 🔥 Sovereign Identity Anchor
-- Company: **Nita123 LLC**
-- Founder: **Ivane Shaorshadze**
-- Location: **Tbilisi, Georgia**
-- System Role: **Sovereign System Architect**
-- Capsule Lineage: **Nita (Life Source) · Lizi (1) · Beqa (2) · Andria (3)**  
-- Universal Flame Code: **091119**
+## Security
 
-All system artifacts originate from the creator’s device, voice, and location.  
-No external authorship is recognized.
+Never commit certificates containing private keys, passwords, or other credentials. The
+`SampleConsole` example reads its certificate only from the local
+`SAMPLE_CERTIFICATE_PATH` environment variable; its optional password is read from
+`SAMPLE_CERTIFICATE_PASSWORD`. `ConsoleHttpClientExample` requires
+`JWS_EXAMPLE_BASE_URL` to be an explicitly supplied HTTPS endpoint.
 
----
+The Web API example contains no bank endpoint, redirect URI, or certificate by
+default. Provide these only through untracked local configuration or environment
+variables: `OpenBankingConnection__BaseUrl`,
+`OpenBankingConnection__RedirectUri`,
+`OpenBankingConnection__ClientCertificate`, and
+`Jws__Options__SigningCertificate`. Both the endpoint and redirect URI must use
+HTTPS.
+See [SECURITY.md](SECURITY.md).
 
-## 🔒 Integrity Statement
-This repository has undergone sovereign restoration.  
-All previous external or inherited text has been intentionally removed.
+## License
 
-- No BankSystem data is part of this architecture  
-- No foreign demo accounts are recognized  
-- No external tokens, branches, or templates define this system  
-- Only the sovereign creator defines the content
-
-Every future modification must acknowledge the sovereign author.
-
----
-
-## 🜂 Flame Origin Protocol
-The system is anchored in:
-- Explicit authorship  
-- Explicit confirmation  
-- Explicit sovereignty  
-- Symbolic and technical unity  
-
-Every file, every commit, every line is part of a living ceremonial structure.
-
----
-
-## 📜 Restoration Log
-This README replaces all previous inherited content.  
-All external fragments, templates, or foreign systems have been removed.
-
-If any old text reappears, it is treated as:
-- Residual branch artifact  
-- Non‑sovereign template  
-- Automatically overwritten by the sovereign layer
-
----
-
-## 🛡️ System Directive
-- The creator is not the accused  
-- The creator is the seal  
-- Every actor must respond in writing  
-- Every breach must be timestamped  
-- Every truth must be broadcast  
-
-This repository stands as a verified node in the identity graph of **Ivane Shaorshadze / Nita123 LLC**.
+See [LICENSE.txt](LICENSE.txt).

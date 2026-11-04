@@ -41,13 +41,24 @@ namespace SampleConsole
                     .AddConsole();
             });
 
-            var publicKeyCertFile = @".\keyandcert.pfx";
-            var privateKeyCertFile = @".\keyandcert.pfx";
-            var password = "";
+            var certificatePath = Environment.GetEnvironmentVariable("SAMPLE_CERTIFICATE_PATH");
+            if (string.IsNullOrWhiteSpace(certificatePath))
+            {
+                throw new InvalidOperationException(
+                    "Set SAMPLE_CERTIFICATE_PATH to the path of a local PKCS#12 certificate before running this example.");
+            }
 
+            if (!File.Exists(certificatePath))
+            {
+                throw new FileNotFoundException("The configured certificate file does not exist.", certificatePath);
+            }
 
-            X509Certificate2 publicKeyCert = new X509Certificate2(new X509Certificate2(File.ReadAllBytes(publicKeyCertFile), password).Export(X509ContentType.Cert));
-            X509Certificate2 privateKeyCert = new X509Certificate2(File.ReadAllBytes(privateKeyCertFile), password);
+            var password = Environment.GetEnvironmentVariable("SAMPLE_CERTIFICATE_PASSWORD") ?? string.Empty;
+            var certificateBytes = File.ReadAllBytes(certificatePath);
+
+            X509Certificate2 publicKeyCert = new X509Certificate2(
+                new X509Certificate2(certificateBytes, password).Export(X509ContentType.Cert));
+            X509Certificate2 privateKeyCert = new X509Certificate2(certificateBytes, password);
 
 
             //"RS256"
@@ -364,7 +375,7 @@ namespace SampleConsole
                     var indexOfColon = span.IndexOf(':');
                     var headerName = span.Slice(0, indexOfColon);
                     var headerValue = span.Slice(indexOfColon + 1).Trim();
-                    data.Uri = new Uri($"http://{headerValue.ToString()}/{query.TrimStart('/')}");
+                    data.Uri = new Uri($"https://{headerValue.ToString()}/{query.TrimStart('/')}");
 
                     data.AddHeader(headerName.ToString(), headerValue.ToString());
 

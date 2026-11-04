@@ -239,7 +239,12 @@ ClientBin/
 *.dbmdl
 *.dbproj.schemaview
 *.jfm
-#*.pfx
+*.pfx
+*.p12
+*.pem
+*.key
+appsettings.Local.json
+.env
 *.publishsettings
 orleans.codegen.cs
 

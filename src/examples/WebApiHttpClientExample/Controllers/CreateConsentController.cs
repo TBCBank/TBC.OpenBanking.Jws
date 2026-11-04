@@ -37,10 +37,12 @@ using Microsoft.AspNetCore.Mvc;
 [Route("[controller]")]
 public class CreateConsentController : ControllerBase
 {
+    private readonly IConfiguration _configuration;
     private readonly IHttpClientFactory _httpClientFactory;
 
-    public CreateConsentController(IHttpClientFactory httpClientFactory)
+    public CreateConsentController(IConfiguration configuration, IHttpClientFactory httpClientFactory)
     {
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
     }
 
@@ -51,7 +53,15 @@ public class CreateConsentController : ControllerBase
         using var request = new HttpRequestMessage(HttpMethod.Post, "v1/consents");
 
         request.Headers.TryAddWithoutValidation("X-Request-ID", Guid.NewGuid().ToString("N"));
-        request.Headers.TryAddWithoutValidation("TPP-Redirect-URI", "https://test-openbanking.tbcbank.ge/callback");
+        var redirectUri = _configuration["OpenBankingConnection:RedirectUri"];
+        if (!Uri.TryCreate(redirectUri, UriKind.Absolute, out var validatedRedirectUri) ||
+            validatedRedirectUri.Scheme != Uri.UriSchemeHttps)
+        {
+            throw new InvalidOperationException(
+                "OpenBankingConnection:RedirectUri must be an absolute HTTPS URI registered with the Open Banking provider.");
+        }
+
+        request.Headers.TryAddWithoutValidation("TPP-Redirect-URI", validatedRedirectUri.AbsoluteUri);
         request.Headers.TryAddWithoutValidation("TPP-Explicit-Authorisation-Preferred", "false");
         request.Headers.TryAddWithoutValidation("PSU-IP-Address", "127.0.0.1");
         request.Headers.TryAddWithoutValidation("PSU-Accept-Language", "en");
