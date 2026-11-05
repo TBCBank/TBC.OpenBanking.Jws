@@ -25,6 +25,7 @@
 namespace TBC.OpenBanking.Jws.Http;
 
 using Microsoft.Extensions.Options;
+using TBC.OpenBanking.Jws;
 
 public sealed class JwsClientOptions : IOptions<JwsClientOptions>
 {
@@ -60,6 +61,14 @@ public sealed class JwsClientOptions : IOptions<JwsClientOptions>
     {
         get; set;
     } = true;
+
+    /// <summary>
+    /// Receives metadata-only audit events for signing and verification.
+    /// </summary>
+    public IAuditSink? AuditSink
+    {
+        get; set;
+    }
 
     public JwsClientOptions Value => this;
 }

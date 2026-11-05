@@ -4,14 +4,14 @@
         <TargetFrameworks>netstandard2.0;net8.0;net9.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <IsPackable>true</IsPackable>
-        <PackageId>TBC.OpenBanking.Jws.Http</PackageId>
-        <Title>TBC Open Banking JWS extensions for HTTP client</Title>
-        <Description>JSON Web Signature (JWS) client-side extensions for .NET</Description>
+        <PackageId>Ivane120585.TBC.OpenBanking.Jws.Http</PackageId>
+        <Title>Ivane1985 Open Banking JWS HTTP</Title>
+        <Description>HTTP JWS extensions for the Open Banking project created and maintained by Ivane1985. Not an official TBC Bank package.</Description>
         <PackageTags>jws;openapi;openbanking;signature;aspnet;aspnetcore</PackageTags>
         <PackageIcon>icon.png</PackageIcon>
         <IncludeSymbols>true</IncludeSymbols>
         <IncludeContentInPack>true</IncludeContentInPack>
-        <RepositoryUrl>https://github.com/TBCBank/TBC.OpenBanking.Jws</RepositoryUrl>
+        <RepositoryUrl>https://github.com/Ivane120585/TBC.OpenBanking.Jws.Ivo120585</RepositoryUrl>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EnablePackageValidation>true</EnablePackageValidation>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>

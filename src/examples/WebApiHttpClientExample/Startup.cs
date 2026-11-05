@@ -81,6 +81,7 @@ public class Startup
             {
                 var handler = new HttpClientHandler
                 {
+                    AllowAutoRedirect = false,
                     AutomaticDecompression = DecompressionMethods.All,
                     UseCookies = false,
                 };

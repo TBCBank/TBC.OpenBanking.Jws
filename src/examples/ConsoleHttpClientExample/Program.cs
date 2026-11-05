@@ -21,6 +21,7 @@
  */
 
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Caching.Memory;
@@ -76,6 +77,10 @@ internal static class Program
                     services.AddHttpClient(name: "ExampleClient", configureClient: (client) =>
                     {
                         client.BaseAddress = baseAddress;
+                    })
+                    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+                    {
+                        AllowAutoRedirect = false,
                     })
                     .AddHttpMessageHandler(services =>
                     {

@@ -5,17 +5,9 @@ name: CI
 on:
   workflow_dispatch:
   push:
-    paths-ignore:
-      - 'images/**'
-      - 'src/images/**'
-      - 'README.md'
-    branches: [ master ]
+    branches: [ Ivane1985, master ]
   pull_request:
-    paths-ignore:
-      - 'images/**'
-      - 'src/images/**'
-      - 'README.md'
-    branches: [ master ]
+    branches: [ Ivane1985, master ]
 
 jobs:
   build:
@@ -47,6 +39,5 @@ jobs:
     - name: Build
       run: dotnet build -c Release --no-restore -p:SourceRevisionId=$(git rev-parse --short $GITHUB_SHA)
 
-    # There are no tests yet.
-    #- name: Test
-    #  run: dotnet test -c Release --no-restore --no-build --verbosity normal
+    - name: Test
+      run: dotnet test TBC.OpenBanking.Jws.slnx -c Release --no-restore --no-build --verbosity normal

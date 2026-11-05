@@ -33,11 +33,18 @@ using TBC.OpenBanking.Jws.Exceptions;
 public class HttpSignatureVerifier<T> where T : HttpMessageData
 {
     private readonly ILogger<HttpSignatureVerifier<T>> _logger;
+    private readonly IAuditSink _auditSink;
     private X509Certificate2 _signerCertificate;
 
     public HttpSignatureVerifier(ILogger<HttpSignatureVerifier<T>> logger)
+        : this(logger, null)
+    {
+    }
+
+    public HttpSignatureVerifier(ILogger<HttpSignatureVerifier<T>> logger, IAuditSink auditSink)
     {
         _logger = logger ?? NullLoggerFactory.Instance.CreateLogger<HttpSignatureVerifier<T>>();
+        _auditSink = auditSink;
         InitData();
     }
 
@@ -69,9 +76,27 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
 #endif
     public bool VerifySignature(T httpData, DateTime checkTime)
     {
-        _ = httpData ?? throw new ArgumentNullException(nameof(httpData));
+        bool result;
+        try
+        {
+            result = VerifySignatureCore(httpData, checkTime);
+        }
+        catch (Exception exception)
+        {
+            WriteAuditEvent(AuditOutcome.Failed, exception.GetType().Name);
+            throw;
+        }
 
+        WriteAuditEvent(AuditOutcome.Succeeded, null);
+        return result;
+    }
+
+    private bool VerifySignatureCore(T httpData, DateTime checkTime)
+    {
         IsSignatureVerified = false;
+        ProtectedHeader = null;
+        _signerCertificate = null;
+        _ = httpData ?? throw new ArgumentNullException(nameof(httpData));
 
         // Check headers. If any is missing throws exception
         CheckMandatoryHeaders(httpData);
@@ -88,9 +113,6 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
         // decode and deserialize protected header
         var jsonProtHeader = UTF8EncodingSealed.Instance.GetString(encodedProtectedHeader.DecodeBase64Url());
         ProtectedHeader = Helper.DeserializeFromJson<ProtectedHeader>(jsonProtHeader);
-
-        if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug("Incoming protected header: {JsonProtHeader}", jsonProtHeader);
 
         CheckProtectedHeader(ProtectedHeader);
 
@@ -130,9 +152,6 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
         // Compose payload
         var payload = httpData.ComposeHeadersForSignature(ProtectedHeader.DataToBeSigned.Parameters);
 
-        if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug("VerifySignature payload: {Payload}", payload);
-
         // Verify signature
         if (!VerifySignature(encodedProtectedHeader, payload, encodedSignature))
         {
@@ -142,6 +161,26 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
         IsSignatureVerified = true;
 
         return IsSignatureVerified;
+    }
+
+    private void WriteAuditEvent(AuditOutcome outcome, string failureCode)
+    {
+        var auditEvent = new AuditEvent(
+            AuditOperation.Verification,
+            outcome,
+            DateTimeOffset.UtcNow,
+            ProtectedHeader?.AlgorithmName,
+            _signerCertificate?.Thumbprint,
+            failureCode);
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug(
+                "JWS verification {Outcome}; algorithm {AlgorithmName}; certificate {CertificateThumbprint}",
+                outcome,
+                auditEvent.AlgorithmName,
+                auditEvent.CertificateThumbprint);
+
+        _auditSink?.Write(auditEvent);
     }
 
     private bool VerifySignature(string encodedProtHeader, string encodedPayload, string encodedSignature)
@@ -198,17 +237,11 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
         data.CheckMandatoryHeaders();
     }
 
-    private void CheckOrganizationIdentifier(ProtectedHeader protHeader, T data)
+    private static void CheckOrganizationIdentifier(ProtectedHeader protHeader, T data)
     {
         using var cert = protHeader.DecodeCertificate(protHeader.EncodedCertificates[0]);
 
-        if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug("Incoming certificate: {Cert}", cert);
-
         var subjects = cert.Subject.Split(',');
-
-        if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug("Incoming subjects: {Subject}", cert.Subject);
 
         string oidString = null;
 
@@ -222,9 +255,6 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
 
             if (oidString != null)
             {
-                if (_logger.IsEnabled(LogLevel.Debug))
-                    _logger.LogDebug("Signing Certificate Organization identifier {OidSubjectName}: {OidString}", oidSubjectName, oidString);
-
                 break;
             }
         }
@@ -238,9 +268,6 @@ public class HttpSignatureVerifier<T> where T : HttpMessageData
 
         if (!data.Headers.TryGetValue(HttpMessageData.OrganizationIdentifier, out string oidFromHeader))
             throw new HeaderMissingException($"Header '{HttpMessageData.OrganizationIdentifier}' is missing");
-
-        if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug("Client Certificate Organization identifier: {OidFromHeader}", oidFromHeader);
 
         if (string.IsNullOrEmpty(oidFromHeader))
             throw new HeaderMissingException("The organization identifier headers from client's certificate is missing");

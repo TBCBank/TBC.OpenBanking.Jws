@@ -35,11 +35,18 @@ using Microsoft.Extensions.Logging.Abstractions;
 public class HttpSigner<T> where T : HttpMessageData
 {
     private readonly ILogger<HttpSigner<T>> _logger;
+    private readonly IAuditSink _auditSink;
     protected readonly Dictionary<string, string> _headersToSign = new(StringComparer.OrdinalIgnoreCase);
 
     public HttpSigner(ILogger<HttpSigner<T>> logger)
+        : this(logger, null)
+    {
+    }
+
+    public HttpSigner(ILogger<HttpSigner<T>> logger, IAuditSink auditSink)
     {
         _logger = logger ?? NullLoggerFactory.Instance.CreateLogger<HttpSigner<T>>();
+        _auditSink = auditSink;
         DigestHashAlgorithmName = null;
 
         Reset();
@@ -91,12 +98,29 @@ public class HttpSigner<T> where T : HttpMessageData
 #endif
     public bool CreateSignature(T httpData)
     {
+        bool result;
+        try
+        {
+            result = CreateSignatureCore(httpData);
+        }
+        catch (Exception exception)
+        {
+            WriteAuditEvent(AuditOutcome.Failed, exception.GetType().Name);
+            throw;
+        }
+
+        WriteAuditEvent(AuditOutcome.Succeeded, null);
+        return result;
+    }
+
+    private bool CreateSignatureCore(T httpData)
+    {
+        Reset();
+
         if (httpData == null) throw new ArgumentNullException(nameof(httpData));
         if (Signer == null) throw new InvalidOperationException($"Property not set '{nameof(Sign)}'");
         if (SignerCertificate == null) throw new InvalidOperationException($"Property not set '{nameof(SignerCertificate)}'");
         if (SignerCertificateChain == null) throw new InvalidOperationException($"Property not set '{nameof(SignerCertificateChain)}'");
-
-        Reset();
 
         // Calculate body digest
         var digest = new HttpDigest(DigestHashAlgorithmName ?? Signer.HashAlgorithmName);
@@ -115,9 +139,6 @@ public class HttpSigner<T> where T : HttpMessageData
 
         var payload = httpData.ComposeHeadersForSignature(protHeader.DataToBeSigned.Parameters, additionalHeaderValues);
 
-        if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug("CreateSignature payload: {Payload}", payload);
-
         var encodedSignature = Sign(encodedProtHeader, payload);
 
         // Populate properties
@@ -128,6 +149,26 @@ public class HttpSigner<T> where T : HttpMessageData
         IsSignatureCreated = true;
 
         return IsSignatureCreated;
+    }
+
+    private void WriteAuditEvent(AuditOutcome outcome, string failureCode)
+    {
+        var auditEvent = new AuditEvent(
+            AuditOperation.Signing,
+            outcome,
+            DateTimeOffset.UtcNow,
+            Signer?.Name,
+            SignerCertificate?.Thumbprint,
+            failureCode);
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug(
+                "JWS signing {Outcome}; algorithm {AlgorithmName}; certificate {CertificateThumbprint}",
+                outcome,
+                auditEvent.AlgorithmName,
+                auditEvent.CertificateThumbprint);
+
+        _auditSink?.Write(auditEvent);
     }
 
     private string Sign(string encodedProtHeader, string payload)

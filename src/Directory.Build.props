@@ -11,15 +11,15 @@
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
         <NoWarn>$(NoWarn);IDE0008;IDE0011;IDE0022;IDE0055;IDE0065;IDE0130;IDE0160</NoWarn>
-        <Company>TBC Bank</Company>
-        <Copyright>&#169; TBC Bank</Copyright>
-        <Authors>Giorgi Alkhazishvili</Authors>
+        <Company>Ivane1985</Company>
+        <Copyright>&#169; 2021 JSC TBC Bank; independent project developed by Ivane1985</Copyright>
+        <Authors>Ivane1985 (Ivane120585)</Authors>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <DebugType>embedded</DebugType>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <PackageProjectUrl>https://github.com/TBCBank/TBC.OpenBanking.Jws</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/TBCBank/TBC.OpenBanking.Jws</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/Ivane120585/TBC.OpenBanking.Jws.Ivo120585</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Ivane120585/TBC.OpenBanking.Jws.Ivo120585</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(TF_BUILD)' == 'True' or '$(GITHUB_ACTIONS)' == 'true' ">

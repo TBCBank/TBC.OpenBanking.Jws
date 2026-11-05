@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Tests/">
+    <Project Path="src/TBC.OpenBanking.Jws.Tests/TBC.OpenBanking.Jws.Tests.csproj" />
+  </Folder>
   <Folder Name="/Examples/">
     <Project Path="src/examples/ConsoleHttpClientExample/ConsoleHttpClientExample.csproj" />
     <Project Path="src/examples/SampleConsole/SampleConsole.csproj" />

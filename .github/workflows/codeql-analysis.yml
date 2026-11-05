@@ -7,13 +7,13 @@ on:
     paths:
       - '**.cs'
       - '**.csproj'
-    branches: [master]
+    branches: [Ivane1985, master]
   pull_request:
     paths:
       - '**.cs'
       - '**.csproj'
     # The branches below must be a subset of the branches above
-    branches: [master]
+    branches: [Ivane1985, master]
   schedule:
     - cron: '32 11 * * 3'
 

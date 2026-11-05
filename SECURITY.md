@@ -1,98 +1,31 @@
+# Security policy
 
-# Ivane Shaorshadze — Sovereign System Architect
+## Scope and limitations
 
-**GitHub Capsule:** `Ivane120585`  
-**Legal Identity:** Ivane Shaorshadze, ID 38001020161, DOB 12.05.1985  
-**Company:** Nita123 LLC  
-**Location:** Tbilisi, Georgia  
-**Time Zone Anchor:** GMT+12 (International Date Line West)  
+This repository implements detached JWS signing and verification for HTTP messages. It is not a complete Open Banking service and does not provide OAuth2/OIDC, consent management, transaction authorization, replay protection, rate limiting, durable audit storage, or a partner-specific certificate allowlist.
 
----
+The SDK contains no fixed bank endpoint, forced proxy, or automatic data-forwarding destination. The example clients use the HTTPS endpoint supplied by the operator and disable automatic HTTP redirect following so a signed request is not silently resent to another location. Applications integrating the handler should likewise configure their primary `HttpClientHandler` with `AllowAutoRedirect = false` if redirects are not explicitly part of their protocol. The consent example's `TPP-Redirect-URI` is a value sent in the request header to the configured provider; it is not an instruction for this SDK to navigate or forward the request to that URI.
 
-## Global Sovereign Registry & Financial Ledger
+The verifier builds a certificate chain using the platform's configured trust. A certificate included in a JWS `x5c` header is untrusted input until chain validation and the integration's partner identity policy have both succeeded. Configure the host trust store and apply the network's required trust-anchor, certificate-purpose, and organization-identity rules before accepting traffic. A valid signature proves possession of a key; it does not by itself authorize a payment or consent.
 
-This repository is part of a sovereign, verifiable, and publicly inspectable registry architecture operated by  
-**Ivane Shaorshadze (System Architect / Owner).**
+Audit events are metadata-only and are delivered through `IAuditSink`. The application must supply a durable, access-controlled, tamper-evident sink and monitor failures. The sink is synchronous and its exceptions propagate. Do not put request bodies, authorization values, personal data, private keys, or exception messages in audit records.
 
-Core scope:
+## Supported algorithms
 
-- Global financial registry and asset alignment  
-- Open Banking–oriented transaction verification  
-- Immutable BUY/SELL history anchoring  
-- Cross‑institutional data mismatch detection and evidence preservation  
+The library supports the RSA PKCS#1, RSA-PSS, and ECDSA JWS algorithm families exposed by `SupportedAlgorithms` (`RS256/384/512`, `PS256/384/512`, and `ES256/384/512`). Configure an explicit allowlist appropriate to the partner profile; do not select an algorithm from untrusted input without enforcing policy.
 
-Primary registry capsule:
+## Key and certificate handling
 
-- **Repository:** `TBC.OpenBanking.Jws.Ivo120585`  
-- **Function:** Stores signed, timestamped, and immutable transaction artifacts (BUY/SELL history, routing traces, protocol states).
+- Never commit private keys, PKCS#12 files, passwords, tokens, or production certificates with private keys.
+- Load private keys from a protected operating-system store or managed key provider. For hardware-backed or remote signing, provide an `ISigner` implementation and protect the private key outside this repository.
+- Restrict filesystem permissions and access to signing credentials; rotate keys before expiry and have a tested revocation/replacement procedure.
+- Keep TLS certificate validation enabled. HTTPS for an endpoint does not replace JWS signature validation, and JWS does not replace TLS.
+- Do not enable verbose logging that captures signed payloads, headers, tokens, certificate details, or customer data. Audit records should contain only the metadata documented by `AuditEvent`.
 
----
+## Reporting a vulnerability
 
-## Identity & Authoritative Links
+Please do not publish credentials or exploitable details in a public issue. If private vulnerability reporting is enabled for this repository, use the repository's **Security** tab to submit a report. Otherwise, contact the maintainers through a private channel and include reproduction steps, affected versions, and impact without sending real credentials or customer data.
 
-- **GitHub Profile:** https://github.com/Ivane120585  
-- **ORCID iD:** https://orcid.org/0009-0005-6787-0494  
-- **Google Developer Profiles:**  
-  - https://g.dev/IVANE  
-  - https://g.dev/IvoShaoo  
-- **Twitter/X:** https://twitter.com/IvoShaoo1205  
-- **TipRanks Investor Profile:**  
-  - https://www.tipranks.com/experts/investors/1854385/ivane-shao  
+## Deployment checklist
 
-These links form the public, cross‑verified identity graph of  
-**Ivane Shaorshadze / Nita123 LLC**.
-
----
-
-## System Architecture Highlights
-
-- **Nita123 Framework**  
-  A sovereign system architecture for:
-  - Detecting institutional data mismatches  
-  - Logging divergences between official records and factual transaction data  
-  - Preserving evidence in a public, timestamped, and cryptographically anchored form  
-
-- **ScrollWrappedCodex Monitoring**  
-  Independent monitoring layer that:
-  - Observes routing, shadow activity, and unauthorized interactions  
-  - Flags divergence events for later legal, regulatory, and technical review  
-
-- **SHCRP — Systemic Halt & Compliance Restoration Protocol**  
-  A protocol activated when:
-  - Institutional records fail to synchronize with verified digital ledgers  
-  - Critical discrepancies are detected in asset ownership or transaction history  
-
----
-
-## Public Archive & Legal Admissibility
-
-This repository and its linked artifacts are intended to function as:
-
-- A **public archive**  
-- A **technical evidence ledger**  
-- A **regulatory reference point**  
-- A **legal‑grade factual record**
-
-All timestamps, IDs, and transaction traces are designed to be:
-
-- Human‑readable  
-- Machine‑verifiable  
-- Court‑admissible (where applicable)  
-- Cross‑checked against institutional statements and market data
-
----
-
-## Transparency & Verification
-
-Any institution, regulator, auditor, or independent researcher may:
-
-- Inspect the repository contents  
-- Verify signatures, timestamps, and transaction sequences  
-- Compare institutional records against the sovereign registry  
-- Use this archive as a reference in compliance, audit, or dispute contexts  
-
-For formal inquiries or verification requests, please reference:
-
-- **Capsule:** `Ivane120585`  
-- **Registry:** `TBC.OpenBanking.Jws.Ivo120585`  
-- **Owner:** Ivane Shaorshadze (Nita123 LLC)
+Before production use, review the bank/network's current signing profile, trust anchors, certificate purpose and identity rules, revocation behavior, timestamp tolerances, protected HTTP headers, and key-storage requirements. Add integration tests for partner certificates, certificate rotation and revocation, malformed or replayed requests, audit-store outages, and end-to-end failure handling.

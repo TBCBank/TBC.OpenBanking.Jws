@@ -5,15 +5,15 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <IsPackable>true</IsPackable>
-        <PackageId>TBC.OpenBanking.Jws</PackageId>
-        <Title>TBC Open Banking JSON Web Signature</Title>
-        <Description>JSON Web Signature (JWS) for Open Banking project</Description>
+        <PackageId>Ivane120585.TBC.OpenBanking.Jws</PackageId>
+        <Title>Ivane1985 Open Banking JWS</Title>
+        <Description>Open Banking HTTP JWS project created and maintained by Ivane1985. Not an official TBC Bank package.</Description>
         <PackageTags>jws;openapi;openbanking;signature</PackageTags>
-        <Authors>Giorgi Alkhazishvili</Authors>
+        <Authors>Ivane1985 (Ivane120585)</Authors>
         <PackageIcon>icon.png</PackageIcon>
         <IncludeContentInPack>true</IncludeContentInPack>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <RepositoryUrl>https://github.com/TBCBank/TBC.OpenBanking.Jws</RepositoryUrl>
+        <RepositoryUrl>https://github.com/Ivane120585/TBC.OpenBanking.Jws.Ivo120585</RepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <EnablePackageValidation>true</EnablePackageValidation>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>

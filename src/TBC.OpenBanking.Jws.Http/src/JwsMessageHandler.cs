@@ -92,7 +92,8 @@ public sealed class JwsMessageHandler : DelegatingHandler
             this.reqSign = new HttpSigner<HttpRequestData>(
                 loggerFactory is null
                     ? NullLoggerFactory.Instance.CreateLogger<HttpSigner<HttpRequestData>>()
-                    : loggerFactory.CreateLogger<HttpSigner<HttpRequestData>>())
+                    : loggerFactory.CreateLogger<HttpSigner<HttpRequestData>>(),
+                options.Value.AuditSink)
             {
                 Signer = signer,
                 SignerCertificate = signerCertificate,  // TODO: Separate publicKeyCert; or maybe dont.
@@ -105,7 +106,8 @@ public sealed class JwsMessageHandler : DelegatingHandler
             this.verifier = new HttpSignatureVerifier<HttpResponseData>(
                 loggerFactory is null
                     ? NullLoggerFactory.Instance.CreateLogger<HttpSignatureVerifier<HttpResponseData>>()
-                    : loggerFactory.CreateLogger<HttpSignatureVerifier<HttpResponseData>>())
+                    : loggerFactory.CreateLogger<HttpSignatureVerifier<HttpResponseData>>(),
+                options.Value.AuditSink)
             {
                 CheckSignatureTimeConstraint = options.Value.CheckSignatureTimeConstraint,
                 CertificateValidationFlags = new CertificateValidationFlags
